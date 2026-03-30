@@ -1,14 +1,4 @@
-const PATHS = {
-  scp: "./data/scp/raw/scp_items.json",
-  tale: "./data/scp/raw/scp_tales.json",
-  goi: "./data/scp/raw/goi.json",
-};
-
-const state = {
-  scps: [],
-  tales: [],
-  gois: [],
-};
+const CROM_ENDPOINT = "https://apiv1.crom.avn.sh/graphql";
 
 const statusEl = document.getElementById("status");
 const cardEl = document.getElementById("result-card");
@@ -22,11 +12,107 @@ const randomScpBtn = document.getElementById("random-scp-btn");
 const randomTaleBtn = document.getElementById("random-tale-btn");
 const randomGoiBtn = document.getElementById("random-goi-btn");
 
+const CROM_QUERIES = {
+  scp: `
+    query RandomArticle {
+      randomPage(
+        filter: {
+          allTags: ["scp"]
+          anyBaseUrl: ["http://scp-wiki.wikidot.com"]
+        }
+      ) {
+        page {
+          url
+          wikidotInfo {
+            title
+            rating
+            tags
+          }
+          attributions {
+            user {
+              name
+            }
+          }
+        }
+      }
+    }
+  `,
+  tale: `
+    query RandomTale {
+      randomPage(
+        filter: {
+          allTags: ["tale"]
+          anyBaseUrl: ["http://scp-wiki.wikidot.com"]
+        }
+      ) {
+        page {
+          url
+          wikidotInfo {
+            title
+            rating
+            tags
+          }
+          attributions {
+            user {
+              name
+            }
+          }
+        }
+      }
+    }
+  `,
+    art: `
+    query RandomTale {
+      randomPage(
+        filter: {
+          allTags: ["artwork"]
+          anyBaseUrl: ["http://scp-wiki.wikidot.com"]
+        }
+      ) {
+        page {
+          url
+          wikidotInfo {
+            title
+            rating
+            tags
+          }
+          attributions {
+            user {
+              name
+            }
+          }
+        }
+      }
+    }
+  `,
+  goi: `
+    query RandomGoi {
+      randomPage(
+        filter: {
+          allTags: ["goi-format"]
+          anyBaseUrl: ["http://scp-wiki.wikidot.com"]
+        }
+      ) {
+        page {
+          url
+          wikidotInfo {
+            title
+            rating
+            tags
+          }
+          attributions {
+            user {
+              name
+            }
+          }
+        }
+      }
+    }
+  `
+};
+
 function normalizeTags(tags) {
-  if (Array.isArray(tags)) {
-    return tags;
-  }
-  return [];
+  return Array.isArray(tags) ? tags : [];
 }
 
 function normalizeRating(rating) {
@@ -34,31 +120,6 @@ function normalizeRating(rating) {
     return "N/A";
   }
   return String(rating);
-}
-
-function makeTitle(record, kind) {
-  if (kind === "scp") {
-    return record.scp || record.title || record.link || "Untitled SCP";
-  }
-  return record.title || record.link || "Untitled";
-}
-
-function makeUrl(record) {
-  if (record.url) {
-    return record.url;
-  }
-  if (record.link) {
-    return `https://scp-wiki.wikidot.com/${record.link}`;
-  }
-  return "#";
-}
-
-function pickRandom(array) {
-  if (!array.length) {
-    return null;
-  }
-  const index = Math.floor(Math.random() * array.length);
-  return array[index];
 }
 
 function clearTags() {
@@ -84,80 +145,96 @@ function renderTags(tags) {
   }
 }
 
+async function cromApiRequest(query, variables = null) {
+  const response = await fetch(CROM_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ query, variables })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Crom request failed (${response.status})`);
+  }
+
+  const payload = await response.json();
+
+  if (payload.errors && payload.errors.length) {
+    throw new Error(payload.errors.map((e) => e.message).join("; "));
+  }
+
+  return payload.data;
+}
+
+function mapCromPageToRecord(page) {
+  return {
+    url: page?.url ?? "#",
+    title: page?.wikidotInfo?.title ?? "Untitled",
+    rating: page?.wikidotInfo?.rating ?? "N/A",
+    tags: Array.isArray(page?.wikidotInfo?.tags) ? page.wikidotInfo.tags : [],
+    authors: Array.isArray(page?.attributions)
+      ? page.attributions.map((a) => a?.user?.name).filter(Boolean)
+      : []
+  };
+}
+
 function renderResult(record, kind) {
   if (!record) {
     statusEl.textContent = `No ${kind} entries available.`;
     return;
   }
 
-  const url = makeUrl(record);
-  const title = makeTitle(record, kind);
+  const title = record.title || "Untitled";
   const tags = normalizeTags(record.tags);
   const rating = normalizeRating(record.rating);
 
   typeEl.textContent =
-    kind === "scp" ? "SCP Article" :
-    kind === "tale" ? "Tale" :
-    "GoI";
+    kind === "scp"
+      ? "SCP Article"
+      : kind === "tale"
+      ? "Tale"
+      : "GoI";
 
   titleEl.innerHTML = "";
   const link = document.createElement("a");
-  link.href = url;
+  link.href = record.url || "#";
   link.target = "_blank";
   link.rel = "noopener noreferrer";
   link.textContent = title;
   titleEl.appendChild(link);
 
-  if (kind === "scp" && record.scp) {
-    scpNumberEl.textContent = "";
-    scpNumberEl.classList.add("hidden");
-  } else {
-    scpNumberEl.textContent = "";
-    scpNumberEl.classList.add("hidden");
-  }
+  scpNumberEl.textContent = "";
+  scpNumberEl.classList.add("hidden");
 
-  ratingEl.textContent = `Rating: ${rating}`;
+  const authorText =
+    Array.isArray(record.authors) && record.authors.length
+      ? ` | Authors: ${record.authors.join(", ")}`
+      : "";
+
+  ratingEl.textContent = `Rating: ${rating}${authorText}`;
   renderTags(tags);
-
   cardEl.classList.remove("hidden");
 }
 
-function isValidScp(record) {
-  return record && typeof record === "object";
-}
-
-function isValidTale(record) {
-  return record && typeof record === "object";
-}
-
-function isValidGoi(record) {
-  return record && typeof record === "object";
-}
-
-async function loadJson(path) {
-  const response = await fetch(path);
-  if (!response.ok) {
-    throw new Error(`Failed to load ${path} (${response.status})`);
-  }
-  return response.json();
-}
-
-async function loadData() {
+async function fetchAndRenderRandom(kind) {
   try {
-    const [scpData, taleData, goiData] = await Promise.all([
-      loadJson(PATHS.scp),
-      loadJson(PATHS.tale),
-      loadJson(PATHS.goi),
-    ]);
+    statusEl.textContent = `Loading random ${kind}...`;
 
-    state.scps = Array.isArray(scpData) ? scpData.filter(isValidScp) : [];
-    state.tales = Array.isArray(taleData) ? taleData.filter(isValidTale) : [];
-    state.gois = Array.isArray(goiData) ? goiData.filter(isValidGoi) : [];
+    const query = CROM_QUERIES[kind];
+    if (!query) {
+      throw new Error(`Unknown randomizer type: ${kind}`);
+    }
 
-    statusEl.textContent =
-      `Loaded ${state.scps.length} SCPs, ` +
-      `${state.tales.length} Tales, ` +
-      `${state.gois.length} GoI pages.`;
+    const data = await cromApiRequest(query);
+    const page = data?.randomPage?.page;
+
+    if (!page) {
+      throw new Error(`Crom returned no ${kind} page.`);
+    }
+
+    renderResult(mapCromPageToRecord(page), kind);
+    statusEl.textContent = `Loaded random ${kind}.`;
   } catch (error) {
     console.error(error);
     statusEl.textContent = error.message;
@@ -165,15 +242,19 @@ async function loadData() {
 }
 
 randomScpBtn.addEventListener("click", () => {
-  renderResult(pickRandom(state.scps), "scp");
+  fetchAndRenderRandom("scp");
 });
 
 randomTaleBtn.addEventListener("click", () => {
-  renderResult(pickRandom(state.tales), "tale");
+  fetchAndRenderRandom("tale");
+});
+
+randomTaleBtn.addEventListener("click", () => {
+  fetchAndRenderRandom("art");
 });
 
 randomGoiBtn.addEventListener("click", () => {
-  renderResult(pickRandom(state.gois), "goi");
+  fetchAndRenderRandom("goi");
 });
 
-loadData();
+statusEl.textContent = "Ready.";
