@@ -109,8 +109,8 @@ function renderResult(record, kind) {
   titleEl.appendChild(link);
 
   if (kind === "scp" && record.scp) {
-    scpNumberEl.textContent = `SCP Number: ${record.scp}`;
-    scpNumberEl.classList.remove("hidden");
+    scpNumberEl.textContent = "";
+    scpNumberEl.classList.add("hidden");
   } else {
     scpNumberEl.textContent = "";
     scpNumberEl.classList.add("hidden");
