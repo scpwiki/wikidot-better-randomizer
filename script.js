@@ -11,6 +11,7 @@ const tagsEl = document.getElementById("result-tags");
 const randomScpBtn = document.getElementById("random-scp-btn");
 const randomTaleBtn = document.getElementById("random-tale-btn");
 const randomGoiBtn = document.getElementById("random-goi-btn");
+const randomArtBtn = document.getElementById("random-art-btn");
 
 const CROM_QUERIES = {
   scp: `
@@ -61,11 +62,11 @@ const CROM_QUERIES = {
       }
     }
   `,
-    art: `
-    query RandomTale {
+  goi: `
+    query RandomGoi {
       randomPage(
         filter: {
-          allTags: ["artwork"]
+          allTags: ["goi-format"]
           anyBaseUrl: ["http://scp-wiki.wikidot.com"]
         }
       ) {
@@ -85,11 +86,11 @@ const CROM_QUERIES = {
       }
     }
   `,
-  goi: `
-    query RandomGoi {
+  art: `
+    query RandomArt {
       randomPage(
         filter: {
-          allTags: ["goi-format"]
+          allTags: ["artwork"]
           anyBaseUrl: ["http://scp-wiki.wikidot.com"]
         }
       ) {
@@ -194,7 +195,9 @@ function renderResult(record, kind) {
       ? "SCP Article"
       : kind === "tale"
       ? "Tale"
-      : "GoI";
+      : kind === "goi"
+      ? "GoI"
+      : "Artwork";
 
   titleEl.innerHTML = "";
   const link = document.createElement("a");
@@ -241,20 +244,20 @@ async function fetchAndRenderRandom(kind) {
   }
 }
 
-randomScpBtn.addEventListener("click", () => {
+randomScpBtn?.addEventListener("click", () => {
   fetchAndRenderRandom("scp");
 });
 
-randomTaleBtn.addEventListener("click", () => {
+randomTaleBtn?.addEventListener("click", () => {
   fetchAndRenderRandom("tale");
 });
 
-randomTaleBtn.addEventListener("click", () => {
-  fetchAndRenderRandom("art");
+randomGoiBtn?.addEventListener("click", () => {
+  fetchAndRenderRandom("goi");
 });
 
-randomGoiBtn.addEventListener("click", () => {
-  fetchAndRenderRandom("goi");
+randomArtBtn?.addEventListener("click", () => {
+  fetchAndRenderRandom("art");
 });
 
 statusEl.textContent = "Ready.";
