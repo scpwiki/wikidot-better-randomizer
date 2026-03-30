@@ -89,7 +89,7 @@ h2 a:hover {
 }
 
 .tags {
-  color: #595959
+  color: #595959;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
