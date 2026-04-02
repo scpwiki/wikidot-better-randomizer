@@ -13,104 +13,152 @@ const randomTaleBtn = document.getElementById("random-tale-btn");
 const randomGoiBtn = document.getElementById("random-goi-btn");
 const randomArtBtn = document.getElementById("random-art-btn");
 
-const CROM_QUERIES = {
-  scp: `
-    query RandomArticle {
-      randomPage(
-        filter: {
-          allTags: ["scp"]
-          anyBaseUrl: ["http://scp-wiki.wikidot.com"]
-        }
-      ) {
-        page {
-          url
-          wikidotInfo {
-            title
-            rating
-            tags
-          }
-          attributions {
-            user {
-              name
-            }
-          }
-        }
-      }
-    }
-  `,
-  tale: `
-    query RandomTale {
-      randomPage(
-        filter: {
-          allTags: ["tale"]
-          anyBaseUrl: ["http://scp-wiki.wikidot.com"]
-        }
-      ) {
-        page {
-          url
-          wikidotInfo {
-            title
-            rating
-            tags
-          }
-          attributions {
-            user {
-              name
-            }
-          }
-        }
-      }
-    }
-  `,
-  goi: `
-    query RandomGoi {
-      randomPage(
-        filter: {
-          allTags: ["goi-format"]
-          anyBaseUrl: ["http://scp-wiki.wikidot.com"]
-        }
-      ) {
-        page {
-          url
-          wikidotInfo {
-            title
-            rating
-            tags
-          }
-          attributions {
-            user {
-              name
-            }
-          }
-        }
-      }
-    }
-  `,
-  art: `
-    query RandomArt {
-      randomPage(
-        filter: {
-          allTags: ["artwork"]
-          anyBaseUrl: ["http://scp-wiki.wikidot.com"]
-        }
-      ) {
-        page {
-          url
-          wikidotInfo {
-            title
-            rating
-            tags
-          }
-          attributions {
-            user {
-              name
-            }
-          }
-        }
-      }
-    }
-  `
+var TRANSLATIONS = {
+  // English
+  'en': {
+    // Header
+    'title': 'Better SCP Randomizer',
+    'instructions': 'Pick a random SCP, Tale, or GoI-Formatted page.',
+    // Buttons
+    'scp-btn': 'Random SCP',
+    'tale-btn': 'Random Tale',
+    'goi-btn': 'Random GoI',
+    'art-btn': 'Random Art',
+    // Labels above Random Page's Title
+    'scp-label': 'SCP Article',
+    'tale-label': 'Tale',
+    'goi-label': 'GoI Article',
+    'art-label': 'Artwork',
+    // Random Page Info
+    'tags': 'Tags',
+    'no-tags': 'No tags',
+    'author': 'Author',
+    'rating': 'Rating',
+    // Loading Status and Errors
+    'ready': 'Ready.',
+    'loading-scp': 'Loading random SCP...',
+    'loading-tale': 'Loading random Tale...',
+    'loading-goi': 'Loading random GoI Article...',
+    'loading-art': 'Loading random artwork...',
+    'loaded-scp': 'Loaded random SCP.',
+    'loaded-tale': 'Loaded random Tale.',
+    'loaded-goi': 'Loaded random GoI Article.',
+    'loaded-art': 'Loaded random Artwork.',
+    'error-no-page': 'No page was returned.',
+    'error-unknown-kind': 'Unknown randomizer type.',
+    // Branch URL
+    'wiki-url': 'http://scp-wiki.wikidot.com',
+  },
+  // French
+  'fr': {
+    // Header
+    'title': 'Better SCP Randomizer (French)',
+    'instructions': 'Pick a random SCP, Tale, or GoI-Formatted page. (French)',
+    // Buttons
+    'scp-btn': 'Random SCP (French)',
+    'tale-btn': 'Random Tale (French)',
+    'goi-btn': 'Random GoI (French)',
+    'art-btn': 'Random Art (French)',
+    // Labels above Random Page's Title
+    'scp-label': 'SCP Article (French)',
+    'tale-label': 'Tale (French)',
+    'goi-label': 'GoI Article (French)',
+    'art-label': 'Artwork (French)',
+    // Random Page Info
+    'tags': 'Tags (French)',
+    'no-tags': 'No tags (French)',
+    'author': 'Author (French)',
+    'rating': 'Rating (French)',
+    // Loading Text
+    'ready': 'Ready. (French)',
+    'loading-scp': 'Loading random SCP... (French)',
+    'loading-tale': 'Loading random Tale... (French)',
+    'loading-goi': 'Loading random GoI Article... (French)',
+    'loading-art': 'Loading random artwork... (French)',
+    'loaded-scp': 'Loaded random SCP. (French)',
+    'loaded-tale': 'Loaded random Tale. (French)',
+    'loaded-goi': 'Loaded random GoI Article. (French)',
+    'loaded-art': 'Loaded random Artwork. (French)',
+    'error-no-page': 'No page was returned. (French)',
+    'error-unknown-kind': 'Unknown randomizer type. (French)',
+    'wiki-url': 'http://fondationscp.wikidot.com',
+  },
 };
+
+function getLang() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("lang") || "en";
+}
+
+function getMessage(language, key) {
+  return TRANSLATIONS[language]?.[key] ?? TRANSLATIONS.en?.[key] ?? key;
+}
+
+const language = getLang();
+
+function initializeMessages(language) {
+  document.documentElement.lang = language;
+
+  document.getElementById('page-title').textContent =
+    getMessage(language, 'title');
+
+  document.getElementById('page-subtitle').textContent =
+    getMessage(language, 'instructions');
+
+  document.getElementById('tags-label').textContent =
+    getMessage(language, 'tags');
+
+  randomScpBtn.textContent = getMessage(language, 'scp-btn');
+  randomTaleBtn.textContent = getMessage(language, 'tale-btn');
+  randomGoiBtn.textContent = getMessage(language, 'goi-btn');
+  randomArtBtn.textContent = getMessage(language, 'art-btn');
+
+  statusEl.textContent = getMessage(language, 'ready');
+}
+
+function buildRandomQuery(tag, language) {
+  const wikiUrl = getMessage(language, 'wiki-url');
+
+  return `
+    query RandomPage {
+      randomPage(
+        filter: {
+          allTags: ["${tag}"]
+          anyBaseUrl: ["${wikiUrl}"]
+        }
+      ) {
+        page {
+          url
+          wikidotInfo {
+            title
+            rating
+            tags
+          }
+          attributions {
+            user {
+              name
+            }
+          }
+        }
+      }
+    }
+  `;
+}
+
+function getQueryForKind(kind, language) {
+  switch (kind) {
+    case 'scp':
+      return buildRandomQuery('scp', language);
+    case 'tale':
+      return buildRandomQuery('tale', language);
+    case 'goi':
+      return buildRandomQuery('goi-format', language);
+    case 'art':
+      return buildRandomQuery('artwork', language);
+    default:
+      throw new Error(getMessage(language, 'error-unknown-kind'));
+  }
+}
 
 function normalizeTags(tags) {
   return Array.isArray(tags) ? tags : [];
@@ -127,13 +175,13 @@ function clearTags() {
   tagsEl.innerHTML = "";
 }
 
-function renderTags(tags) {
+function renderTags(tags, language) {
   clearTags();
 
   if (!tags.length) {
     const span = document.createElement("span");
     span.className = "tag";
-    span.textContent = "No tags";
+    span.textContent = getMessage(language, 'no-tags');
     tagsEl.appendChild(span);
     return;
   }
@@ -180,9 +228,9 @@ function mapCromPageToRecord(page) {
   };
 }
 
-function renderResult(record, kind) {
+function renderResult(record, kind, language) {
   if (!record) {
-    statusEl.textContent = `No ${kind} entries available.`;
+    statusEl.textContent = getMessage(language, 'error-no-page');
     return;
   }
 
@@ -192,12 +240,12 @@ function renderResult(record, kind) {
 
   typeEl.textContent =
     kind === "scp"
-      ? "SCP Article"
+      ? getMessage(language, 'scp-label')
       : kind === "tale"
-      ? "Tale"
+      ? getMessage(language, 'tale-label')
       : kind === "goi"
-      ? "GoI"
-      : "Artwork";
+      ? getMessage(language, 'goi-label')
+      : getMessage(language, 'art-label');
 
   titleEl.innerHTML = "";
   const link = document.createElement("a");
@@ -212,52 +260,49 @@ function renderResult(record, kind) {
 
   const authorText =
     Array.isArray(record.authors) && record.authors.length
-      ? ` | Authors: ${record.authors.join(", ")}`
+      ? ` | ${getMessage(language, 'author')}: ${record.authors.join(", ")}`
       : "";
 
-  ratingEl.textContent = `Rating: ${rating}${authorText}`;
-  renderTags(tags);
+  ratingEl.textContent = `${getMessage(language, 'rating')}: ${rating}${authorText}`;
+  renderTags(tags, language);
   cardEl.classList.remove("hidden");
 }
 
-async function fetchAndRenderRandom(kind) {
+async function fetchAndRenderRandom(kind, language) {
   try {
-    statusEl.textContent = `Loading random ${kind}...`;
+    statusEl.textContent = getMessage(language, `loading-${kind}`);
 
-    const query = CROM_QUERIES[kind];
-    if (!query) {
-      throw new Error(`Unknown randomizer type: ${kind}`);
-    }
-
+    const query = getQueryForKind(kind, language);
     const data = await cromApiRequest(query);
     const page = data?.randomPage?.page;
 
     if (!page) {
-      throw new Error(`Crom returned no ${kind} page.`);
+      throw new Error(getMessage(language, 'error-no-page'));
     }
 
-    renderResult(mapCromPageToRecord(page), kind);
-    statusEl.textContent = `Loaded random ${kind}.`;
+    renderResult(mapCromPageToRecord(page), kind, language);
+    statusEl.textContent = getMessage(language, `loaded-${kind}`);
   } catch (error) {
     console.error(error);
     statusEl.textContent = error.message;
   }
 }
 
+initializeMessages(language);
+
 randomScpBtn?.addEventListener("click", () => {
-  fetchAndRenderRandom("scp");
+  fetchAndRenderRandom("scp", language);
 });
 
 randomTaleBtn?.addEventListener("click", () => {
-  fetchAndRenderRandom("tale");
+  fetchAndRenderRandom("tale", language);
 });
 
 randomGoiBtn?.addEventListener("click", () => {
-  fetchAndRenderRandom("goi");
+  fetchAndRenderRandom("goi", language);
 });
 
 randomArtBtn?.addEventListener("click", () => {
-  fetchAndRenderRandom("art");
+  fetchAndRenderRandom("art", language);
 });
 
-statusEl.textContent = "Ready.";
