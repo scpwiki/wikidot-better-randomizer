@@ -13,6 +13,22 @@ const randomTaleBtn = document.getElementById("random-tale-btn");
 const randomGoiBtn = document.getElementById("random-goi-btn");
 const randomArtBtn = document.getElementById("random-art-btn");
 
+const TAG_MAP = {
+  // English
+  en: {
+    scp: "scp",
+    tale: "tale",
+    goi: "goi-format",
+    art: "artwork",
+  },
+  // French
+  fr: {
+    scp: "scp",
+    tale: "contre",
+    goi: "format-gdi",
+    art: "fanart",
+  }
+
 var TRANSLATIONS = {
   // English
   'en': {
@@ -146,17 +162,9 @@ function buildRandomQuery(tag, language) {
 }
 
 function getQueryForKind(kind, language) {
-  switch (kind) {
-    case 'scp':
-      return buildRandomQuery('scp', language);
-    case 'tale':
-      return buildRandomQuery('tale', language);
-    case 'goi':
-      return buildRandomQuery('goi-format', language);
-    case 'art':
-      return buildRandomQuery('artwork', language);
-    default:
-      throw new Error(getMessage(language, 'error-unknown-kind'));
+  const tag = TAG_MAP[language]?.[kind] || TAG_MAP.en[kind];
+
+  return buildRandomQuery(tag, language);
   }
 }
 
