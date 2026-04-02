@@ -24,11 +24,11 @@ const TAG_MAP = {
   // French
   fr: {
     scp: "scp",
-    tale: "contre",
+    tale: "conte",
     goi: "format-gdi",
     art: "fanart",
   }
-}
+};
 
 var TRANSLATIONS = {
   // English
@@ -164,9 +164,7 @@ function buildRandomQuery(tag, language) {
 
 function getQueryForKind(kind, language) {
   const tag = TAG_MAP[language]?.[kind] || TAG_MAP.en[kind];
-
   return buildRandomQuery(tag, language);
-  }
 }
 
 function normalizeTags(tags) {
