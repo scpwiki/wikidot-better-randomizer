@@ -28,6 +28,7 @@ const TAG_MAP = {
     goi: "format-gdi",
     art: "fanart",
   }
+}
 
 var TRANSLATIONS = {
   // English
