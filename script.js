@@ -121,7 +121,7 @@ function checkRateLimit() {
     return {allowed: false, waitMs};
   }
 
-  requestTimestamps.push(now);
+  requestTimeStamps.push(now);
 
   return {allowed: true, waitMs: 0};
 }
