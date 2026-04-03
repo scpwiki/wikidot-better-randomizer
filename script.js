@@ -112,7 +112,7 @@ var TRANSLATIONS = {
 function checkRateLimit() {
   const now = Date.now();
 
-  while (requestTimeStamps.length > 0 && now - requestTimeStamps[0] >= RATE_LIMIT_WINDOW_MS) {
+  while (requestTimeStamps.length > 0 && now - requestTimeStamps[0] >= RATE_LIMIT_WINDOWS_MS) {
     requestTimeStamps.shift();
   }
 
