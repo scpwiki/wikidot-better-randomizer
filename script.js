@@ -13,6 +13,11 @@ const randomTaleBtn = document.getElementById("random-tale-btn");
 const randomGoiBtn = document.getElementById("random-goi-btn");
 const randomArtBtn = document.getElementById("random-art-btn");
 
+const RATE_LIMIT_MAX_REQUESTS = 12;
+const RATE_LIMIT_WINDOWS_MS = 60 * 1000;
+
+const requestTimeStamps = [];
+
 const TAG_MAP = {
   // English
   en: {
@@ -63,6 +68,7 @@ var TRANSLATIONS = {
     'loaded-art': 'Loaded random Artwork.',
     'error-no-page': 'No page was returned.',
     'error-unknown-kind': 'Unknown randomizer type.',
+    'error-rate-limit': 'Rate limit reached. Try again in %%seconds%% seconds.',
     // Branch URL
     'wiki-url': 'http://scp-wiki.wikidot.com',
   },
@@ -98,9 +104,28 @@ var TRANSLATIONS = {
     'loaded-art': 'Loaded random Artwork. (French)',
     'error-no-page': 'No page was returned. (French)',
     'error-unknown-kind': 'Unknown randomizer type. (French)',
+    'error-rate-limit': 'Rate limit reached. Try again in %%seconds%% seconds. (French)',
     'wiki-url': 'http://fondationscp.wikidot.com',
   },
 };
+
+function checkRateLimit() {
+  const now = Date.now();
+
+  while (requestTimeStamps.length > 0 && now - requestTimeStamps[0] >= RATE_LIMIT_WINDOW_MS) {
+    requestTimeStamps.shift();
+  }
+
+  if (requestTimestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
+    const waitMs = RATE_LIMIT_WINDOWS_MS - (now - requestTimeStamps[0]);
+    return {allowed: false, waitMs};
+  }
+
+  requestTimestamps.push(now);
+
+  return {allowed: true, waitMs: 0};
+}
+      
 
 function getLang() {
   const params = new URLSearchParams(window.location.search);
@@ -276,6 +301,15 @@ function renderResult(record, kind, language) {
 }
 
 async function fetchAndRenderRandom(kind, language) {
+  const rateLimit = checkRateLimit();
+
+  if (!rateLimit.allowed) {
+    const waitSeconds = Math.ceil(rateLimit.waitMs / 1000);
+    statusEl.textContent = getMessage(language, 'error-rate-limit')
+      .replace('%%seconds%%', waitSeconds);
+    return;
+  }
+  
   try {
     statusEl.textContent = getMessage(language, `loading-${kind}`);
 
