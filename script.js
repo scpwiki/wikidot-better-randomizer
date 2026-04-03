@@ -116,7 +116,7 @@ function checkRateLimit() {
     requestTimeStamps.shift();
   }
 
-  if (requestTimestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
+  if (requestTimeStamps.length >= RATE_LIMIT_MAX_REQUESTS) {
     const waitMs = RATE_LIMIT_WINDOWS_MS - (now - requestTimeStamps[0]);
     return {allowed: false, waitMs};
   }
