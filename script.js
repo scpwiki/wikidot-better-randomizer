@@ -132,7 +132,7 @@ function getLang() {
   const lang = params.get("lang");
   
   if (!lang || !TRANSLATIONS[lang]) {
-    statusEl.textContent = "Error: Missing or invalid language. Add ?lang=(en,fr,...) to the end of the URL.";
+    statusEl.textContent = "Error: Missing or invalid language. Please add ?lang=(en,fr,etc.) to the end of the URL.";
     throw new Error("Invalid language");
   }
 
