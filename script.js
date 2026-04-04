@@ -129,7 +129,14 @@ function checkRateLimit() {
 
 function getLang() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("lang") || "en";
+  const lang = params.get("lang");
+  
+  if (!lang || !TRANSLATIONS[lang]) {
+    statusEl.textContent = "Error: Missing or invalid language. Add ?lang=(en,fr,...) to the end of the URL.";
+    throw new Error("Invalid language");
+  }
+
+  return lang;
 }
 
 function getMessage(language, key) {
