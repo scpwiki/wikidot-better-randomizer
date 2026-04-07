@@ -26,6 +26,12 @@ const TAG_MAP = {
     goi: "goi-format",
     art: "artwork",
   },
+  vn: {
+    scp: "scp",
+    tale: "tale",
+    goi: "goi-format",
+    art: "artwork",
+  },
   // French
   fr: {
     scp: "scp",
@@ -71,6 +77,41 @@ var TRANSLATIONS = {
     'error-rate-limit': 'Rate limit reached. Try again in %%seconds%% seconds.',
     // Branch URL
     'wiki-url': 'http://scp-wiki.wikidot.com',
+  },
+  // Vietnamese
+  'vn': {
+    'title': 'Better SCP Randomizer',
+    'instructions': 'Chọn một trang SCP, Ngoại truyện, hoặc tài liệu TLĐLT ngẫu nhiên.',
+    // Buttons
+    'scp-btn': 'SCP Ngẫu Nhiên',
+    'tale-btn': 'Ngoại truyện Ngẫu nhiên',
+    'goi-btn': 'TLĐLT Ngẫu nhiên',
+    'art-btn': 'Họa phẩm Ngẫu nhiên',
+    // Labels above Random Page's Title
+    'scp-label': 'Tài liệu SCP',
+    'tale-label': 'Ngoại truyện',
+    'goi-label': 'Tài liệu TLĐLT',
+    'art-label': 'Họa Phẩm',
+    // Random Page Info
+    'tags': 'Tag',
+    'no-tags': 'Không có Tag',
+    'author': 'Tác giả',
+    'rating': 'Đánh giá',
+    // Loading Status and Errors
+    'ready': 'Sẵn sàng.',
+    'loading-scp': 'Đang tải tài liệu SCP ngẫu nhiên...',
+    'loading-tale': 'Đang tải Ngoại truyện ngẫu nhiên...',
+    'loading-goi': 'Đang tải tài liệu TLĐLT ngẫu nhiên...',
+    'loading-art': 'Đang tải Họa phẩm ngẫu nhiên...',
+    'loaded-scp': 'Đã tải xong tài liệu SCP ngẫu nhiên.',
+    'loaded-tale': 'Đã tải xong Ngoại truyện ngẫu nhiên.',
+    'loaded-goi': 'Đã tải xong tài liệu TLĐLT ngẫu nhiên.',
+    'loaded-art': 'Đã tải xong Họa phẩm ngẫu nhiên.',
+    'error-no-page': 'Không trả về được kết quả.',
+    'error-unknown-kind': 'Không rõ phân loại ngẫu nhiên.',
+    'error-rate-limit': 'Đã đạt giới hạn cho phép. Hãy thử lại trong %%seconds%% giây.',
+    // Branch URL
+    'wiki-url': 'http://scp-vn.wikidot.com',
   },
   // French
   'fr': {
@@ -132,7 +173,7 @@ function getLang() {
   const lang = params.get("lang");
   
   if (!lang || !TRANSLATIONS[lang]) {
-    statusEl.textContent = "Error: Missing or invalid language. Please add ?lang=(en,fr,etc.) to the end of the URL.";
+    statusEl.textContent = "Error: Missing or invalid language. Please add ?lang=(en, fr, or vn) to the end of the URL.";
     throw new Error("Invalid language");
   }
 
