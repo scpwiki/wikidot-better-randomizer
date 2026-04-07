@@ -28,9 +28,9 @@ const TAG_MAP = {
   },
   vn: {
     scp: "scp",
-    tale: "tale",
-    goi: "goi-format",
-    art: "artwork",
+    tale: "truyện",
+    goi: "tài-liệu-goi",
+    art: "hội-họa",
   },
   // French
   fr: {
