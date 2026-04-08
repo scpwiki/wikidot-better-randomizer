@@ -377,7 +377,58 @@ async function fetchAndRenderRandom(kind, language) {
   }
 }
 
+async function fetchAndMaybeRedirect(kind, language, shouldRedirect = false) {
+  const rateLimit = checkRateLimit();
+
+  if (!rateLimit.allowed) {
+    const waitSeconds = Math.ceil(rateLimit.waitMs / 1000);
+    statusEl.textContent = getMessage(language, 'error-rate-limit')
+      .replace('%%seconds%%', waitSeconds);
+    return;
+  }
+
+  try {
+    const query = getQueryForKind(kind, language);
+    const data = await cromApiRequest(query);
+    const page = data?.randomPage?.page;
+
+    if (!page || !page.url) {
+      throw new Error(getMessage(language, 'error-no-page'));
+    }
+
+    if (shouldRedirect) {
+      window.location.href = page.url;
+      return;
+    }
+
+    renderResult(mapCromPageToRecord(page), kind, language);
+  } catch (error) {
+    console.error(error);
+    statusEl.textContent = error.message;
+  }
+}
+
 initializeMessages(language);
+
+function checkAutoRedirect() {
+  const params = new URLSearchParams(window.location.search);
+  const randomType = params.get("random");
+
+  if (!randomType) return;
+
+  const validTypes = ["scp", "tale", "goi", "art"];
+
+  if (!validTypes.includes(randomType)) {
+    statusEl.textContent = "Invalid random type.";
+    return;
+  }
+
+  statusEl.textContent = getMessage(language, `loading-${randomType}`);
+
+  fetchAndMaybeRedirect(randomType, language, true);
+}
+
+checkAutoRedirect();
 
 randomScpBtn?.addEventListener("click", () => {
   fetchAndRenderRandom("scp", language);
