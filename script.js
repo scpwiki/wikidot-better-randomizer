@@ -1,4 +1,6 @@
 const CROM_ENDPOINT = "https://apiv1.crom.avn.sh/graphql";
+const PREVIEW_REGEX =
+  /\[\[include\s+(?::[a-z0-9-]{1,12}:)?component:preview\s+(?:\|\s*)?text\s*=\s*(.+?)\s*\]\]/ms;
 
 const statusEl = document.getElementById("status");
 const cardEl = document.getElementById("result-card");
@@ -7,6 +9,9 @@ const titleEl = document.getElementById("result-title");
 const scpNumberEl = document.getElementById("result-scp-number");
 const ratingEl = document.getElementById("result-rating");
 const tagsEl = document.getElementById("result-tags");
+const altTitleEl = document.getElementById("result-alt-title");
+const previewEl = document.getElementById("result-preview");
+const thumbnailEl = document.getElementById("result-thumbnail");
 
 const randomScpBtn = document.getElementById("random-scp-btn");
 const randomTaleBtn = document.getElementById("random-tale-btn");
@@ -219,10 +224,15 @@ function buildRandomQuery(tag, language) {
       ) {
         page {
           url
+          alternateTitles {
+            title
+          }
           wikidotInfo {
             title
             rating
             tags
+            thumbnailUrl
+            source
           }
           attributions {
             user {
@@ -296,12 +306,34 @@ async function cromApiRequest(query, variables = null) {
   return payload.data;
 }
 
+function extractPreviewText(pageSource) {
+  if (!pageSource || typeof pageSource !== "string") {
+    return "";
+  }
+
+  const previewText = pageSource.match(PREVIEW_REGEX)?.[1]?.trim();
+
+  if (!previewText) {
+    return "";
+  }
+
+  return previewText;
+}
+
 function mapCromPageToRecord(page) {
+  const source = page?.wikidotInfo?.source ?? "";
+  
   return {
     url: page?.url ?? "#",
     title: page?.wikidotInfo?.title ?? "Untitled",
+    alternateTitle: Array.isArray(page?.alternateTitles) && page.alternateTitles.length
+      ? page.alternateTitles[0]?.title ?? ""
+      : "",
     rating: page?.wikidotInfo?.rating ?? "N/A",
     tags: Array.isArray(page?.wikidotInfo?.tags) ? page.wikidotInfo.tags : [],
+    thumbnailUrl: page?.wikidotInfo?.thumbnailUrl ?? "",
+    source,
+    previewText: extractPreviewText(source),
     authors: Array.isArray(page?.attributions)
       ? page.attributions.map((a) => a?.user?.name).filter(Boolean)
       : []
@@ -315,8 +347,10 @@ function renderResult(record, kind, language) {
   }
 
   const title = record.title || "Untitled";
+  const alternateTitle = record.alternateTitle || "";
   const tags = normalizeTags(record.tags);
   const rating = normalizeRating(record.rating);
+  const previewText = record.previewText || "";
 
   typeEl.textContent =
     kind === "scp"
@@ -344,6 +378,34 @@ function renderResult(record, kind, language) {
       : "";
 
   ratingEl.textContent = `${getMessage(language, 'rating')}: ${rating}${authorText}`;
+
+  if (alternateTitle) {
+    altTitleEl.textContent = alternateTitle;
+    altTitleEl.classList.remove("hidden");
+  } else {
+    altTitleEl.textContent = "";
+    altTitleEl.classList.add("hidden");
+  }
+
+  if (previewText) {
+    previewEl.textContent = previewText;
+    previewEl.classList.remove("hidden");
+  } else {
+    previewEl.textContent = "";
+    previewEl.classList.add("hidden");
+  }
+
+  if (record.thumbnailUrl) {
+    thumbnailEl.src = record.thumbnailUrl;
+    thumbnailEl.alt = alternateTitle
+      ? `${alternateTitle} thumbnail`
+      : `${title} thumbnail`;
+    thumbnailEl.classList.remove("hidden");
+  } else {
+    thumbnailEl.removeAttribute("src");
+    thumbnailEl.classList.add("hidden");
+  }
+  
   renderTags(tags, language);
   cardEl.classList.remove("hidden");
 }
@@ -397,7 +459,7 @@ async function fetchAndMaybeRedirect(kind, language, shouldRedirect = false) {
     }
 
     if (shouldRedirect) {
-      window.location.href = page.url;
+      window.location.replace(page.url);
       return;
     }
 
