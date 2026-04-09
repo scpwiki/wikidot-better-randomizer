@@ -30,7 +30,7 @@ h1 {
 
 button {
   background: #2a2a2a;
-  background-image: linear-gradient(to bottom, #966, #633, #300);
+  background-image: linear-gradient(to bottom, #966, #633, #300); /* Taken from the Wiki Search Button */
   color: #fff;
   border: 1px solid #444;
   border-radius: 10px;
@@ -48,8 +48,8 @@ button:hover {
   margin-bottom: 20px;
 }
 
-.card {
-  background: #e3e3e3;
+.card { /* Results. Styled Similarly to Wiki Sidebar */
+  background: #e3e3e3; /* "Notice Box" Gray, to have Result Stick Out From the Page */
   border: 1px solid #600;
   border-radius: 10px;
   padding: 10px;
@@ -112,7 +112,7 @@ h2 a:hover {
 }
 
 .tag:hover {
-  background: #744;
+  background: #744; /* Highlights Selected Tag */
 }
 
 .tag:focus {
