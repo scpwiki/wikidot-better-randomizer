@@ -21,12 +21,21 @@
     <p id="status" class="status"></p>
 
     <section id="result-card" class="card hidden">
-      <p class="type" id="result-type"></p>
-      <h2 id="result-title"></h2>
+      <div class="result-header">
+        <div class="result-main">
+          <p class="type" id="result-type"></p>
+          <h2 id="result-title"></h2>
+          <p id="result-alt-title" class="alt-title hidden"></p>
 
-      <div class="meta">
-        <p id="result-scp-number" class="hidden"></p>
-        <p id="result-rating"></p>
+          <div class="meta">
+            <p id="result-scp-number" class="hidden"></p>
+            <p id="result-rating"></p>
+          </div>
+
+          <p id="result-preview" class="preview hidden"></p>
+        </div>
+
+        <img id="result-thumbnail" class="thumbnail hidden" alt="Article thumbnail" />
       </div>
 
       <div>
