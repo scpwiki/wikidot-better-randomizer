@@ -103,6 +103,21 @@ h2 a:hover {
   padding: 6px 10px;
   font-size: 14px;
   color: #ddd;
+
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.2;
+
+  display: inline-block;
+}
+
+.tag:hover {
+  background: #744;
+}
+
+.tag:focus {
+  outline: 2px solid #b01;
+  outline-offset: 2px;
 }
 
 .result-header {
