@@ -62,6 +62,7 @@ var TRANSLATIONS = {
     'tale-label': 'Tale',
     'goi-label': 'GoI Article',
     'art-label': 'Artwork',
+    'random-tag-label': 'Page Tagged With',
     // Random Page Info
     'tags': 'Tags',
     'no-tags': 'No tags',
@@ -73,10 +74,12 @@ var TRANSLATIONS = {
     'loading-tale': 'Loading random Tale...',
     'loading-goi': 'Loading random GoI Article...',
     'loading-art': 'Loading random artwork...',
+    'loading-tag': 'Loading random article tagged "%%tag%%"...',
     'loaded-scp': 'Loaded random SCP.',
     'loaded-tale': 'Loaded random Tale.',
     'loaded-goi': 'Loaded random GoI Article.',
     'loaded-art': 'Loaded random Artwork.',
+    'loaded-tag': 'Loaded random article tagged "%%tag%%".',
     'error-no-page': 'No page was returned.',
     'error-unknown-kind': 'Unknown randomizer type.',
     'error-rate-limit': 'Rate limit reached. Try again in %%seconds%% seconds.',
@@ -97,6 +100,7 @@ var TRANSLATIONS = {
     'tale-label': 'Ngoại truyện',
     'goi-label': 'Tài liệu TLĐLT',
     'art-label': 'Họa Phẩm',
+    'random-tag-label': 'Page Tagged With',
     // Random Page Info
     'tags': 'Tag',
     'no-tags': 'Không có Tag',
@@ -108,10 +112,12 @@ var TRANSLATIONS = {
     'loading-tale': 'Đang tải Ngoại truyện ngẫu nhiên...',
     'loading-goi': 'Đang tải tài liệu TLĐLT ngẫu nhiên...',
     'loading-art': 'Đang tải Họa phẩm ngẫu nhiên...',
+    'loading-tag': 'Loading random article tagged "%%tag%%"...',
     'loaded-scp': 'Đã tải xong tài liệu SCP ngẫu nhiên.',
     'loaded-tale': 'Đã tải xong Ngoại truyện ngẫu nhiên.',
     'loaded-goi': 'Đã tải xong tài liệu TLĐLT ngẫu nhiên.',
     'loaded-art': 'Đã tải xong Họa phẩm ngẫu nhiên.',
+    'loaded-tag': 'Loaded random article tagged "%%tag%%".',
     'error-no-page': 'Không trả về được kết quả.',
     'error-unknown-kind': 'Không rõ phân loại ngẫu nhiên.',
     'error-rate-limit': 'Đã đạt giới hạn cho phép. Hãy thử lại trong %%seconds%% giây.',
@@ -133,6 +139,7 @@ var TRANSLATIONS = {
     'tale-label': 'Conte',
     'goi-label': 'Format GdI',
     'art-label': 'Artwork',
+    'random-tag-label': 'Article Tagged With',
     // Random Page Info
     'tags': 'Tags',
     'no-tags': 'Pas de tags',
@@ -144,10 +151,12 @@ var TRANSLATIONS = {
     'loading-tale': 'Recherche d\'un conte au hasard...',
     'loading-goi': 'Recherche d\'un format GdI au hasard...',
     'loading-art': 'Loading random artwork...',
+    'loading-tag': 'Loading random article tagged "%%tag%%"...',
     'loaded-scp': 'Rapport trouvé.',
     'loaded-tale': 'Conte trouvé.',
     'loaded-goi': 'Format GdI trouvé.',
     'loaded-art': 'Loaded random Artwork.',
+    'loaded-tag': 'Loaded random article tagged "%%tag%%".',
     'error-no-page': 'Aucune page trouvée.',
     'error-unknown-kind': 'Type inconnu.',
     'error-rate-limit': 'Limite de requête atteinte. Merci de réessayer dans %%seconds%% secondes.',
@@ -285,11 +294,19 @@ function renderTags(tags, language) {
   }
 
   for (const tag of tags) {
-    const span = document.createElement("span");
-    span.className = "tag";
-    span.textContent = tag;
-    tagsEl.appendChild(span);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "tag";
+    button.textContent = tag;
+
+    button.addEventListener("click", () => {
+      fetchAndRenderRandomByTag(tag, language);
+    });
+    
+    tagsEl.appendChild(button);
   }
+
+  
 }
 
 async function cromApiRequest(query, variables = null) {
@@ -348,7 +365,7 @@ function mapCromPageToRecord(page) {
   };
 }
 
-function renderResult(record, kind, language) {
+function renderResult(record, kind, language, activeTag = null) {
   if (!record) {
     statusEl.textContent = getMessage(language, 'error-no-page');
     return;
@@ -360,14 +377,18 @@ function renderResult(record, kind, language) {
   const rating = normalizeRating(record.rating);
   const previewText = record.previewText || "";
 
-  typeEl.textContent =
-    kind === "scp"
-      ? getMessage(language, 'scp-label')
-      : kind === "tale"
-      ? getMessage(language, 'tale-label')
-      : kind === "goi"
-      ? getMessage(language, 'goi-label')
-      : getMessage(language, 'art-label');
+  if (kind === "tag" && activeTag) {
+    typeEl.textContent = `${getMessage(language, 'random-tag-label')}: ${activeTag}`;
+  } else {
+    typeEl.textContent =
+      kind === "scp"
+        ? getMessage(language, 'scp-label')
+        : kind === "tale"
+        ? getMessage(language, 'tale-label')
+        : kind === "goi"
+        ? getMessage(language, 'goi-label')
+        : getMessage(language, 'art-label');
+  }
 
   titleEl.innerHTML = "";
   const link = document.createElement("a");
@@ -441,6 +462,37 @@ async function fetchAndRenderRandom(kind, language) {
 
     renderResult(mapCromPageToRecord(page), kind, language);
     statusEl.textContent = getMessage(language, `loaded-${kind}`);
+  } catch (error) {
+    console.error(error);
+    statusEl.textContent = error.message;
+  }
+}
+
+async function fetchAndRenderRandomByTag(tag, language) {
+  const rateLimit = checkRateLimit();
+
+  if (!rateLimit.allowed) {
+    const waitSeconds = Math.ceil(rateLimit.waitMs / 1000);
+    statusEl.textContent = getMessage(language, 'error-rate-limit')
+      .replace('%%seconds%%', waitSeconds);
+    return;
+  }
+
+  try {
+    statusEl.textContent = getMessage(language, 'loading-tag')
+      .replace("%%tag%%", tag);
+
+    const query = buildRandomQuery(tag, language);
+    const data = await cromApiRequest(query);
+    const page = data?.randomPage?.page;
+
+    if (!page) {
+      throw new Error(getMessage(language, 'error-no-page'));
+    }
+
+    renderResult(mapCromPageToRecord(page), "tag", language, tag);
+    statusEl.textContent = getMessage(language, 'loaded-tag')
+      .replace("%%tag%%", tag);
   } catch (error) {
     console.error(error);
     statusEl.textContent = error.message;
