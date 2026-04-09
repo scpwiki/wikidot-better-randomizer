@@ -104,3 +104,40 @@ h2 a:hover {
   font-size: 14px;
   color: #ddd;
 }
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.result-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.alt-title {
+  margin-top: -8px;
+  margin-bottom: 14px;
+  font-size: 15px;
+  color: #7a4a4a;
+}
+
+.preview {
+  margin-top: 14px;
+  margin-bottom: 18px;
+  line-height: 1.5;
+  color: #444;
+  font-style: italic;
+}
+
+.thumbnail {
+  width: 120px;
+  max-width: 30%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #600;
+  object-fit: cover;
+  flex-shrink: 0;
+}
