@@ -254,6 +254,14 @@ function normalizeTags(tags) {
   return Array.isArray(tags) ? tags : [];
 }
 
+function filterDisplayTags(tags) {
+  return normalizeTags(tags).filter(tag =>
+    typeof tag === "string" &&
+    !tag.startsWith("_") &&
+    !tag.startsWith("crom:")
+  );
+}
+
 function normalizeRating(rating) {
   if (rating === null || rating === undefined || rating === "") {
     return "N/A";
@@ -348,7 +356,7 @@ function renderResult(record, kind, language) {
 
   const title = record.title || "Untitled";
   const alternateTitle = record.alternateTitle || "";
-  const tags = normalizeTags(record.tags);
+  const tags = filterDisplayTags(record.tags);
   const rating = normalizeRating(record.rating);
   const previewText = record.previewText || "";
 
