@@ -58,6 +58,7 @@ var TRANSLATIONS = {
   'en': {
     // Header
     'title': 'Better SCP Randomizer',
+    'credit': '',
     'instructions': 'Pick a random SCP, Tale, or GoI-Formatted page.',
     // Buttons
     'scp-btn': 'Random SCP',
@@ -95,7 +96,8 @@ var TRANSLATIONS = {
   },
   // Vietnamese
   'vn': {
-    'title': 'Better SCP Randomizer',
+    'title': 'Bộ chọn SCP Ngẫu nhiên Tốt hơn',
+    'credit': 'Made by -EN user Danjon56',
     'instructions': 'Chọn một trang SCP, Ngoại truyện, hoặc tài liệu TLĐLT ngẫu nhiên.',
     // Buttons
     'scp-btn': 'SCP Ngẫu Nhiên',
@@ -106,7 +108,7 @@ var TRANSLATIONS = {
     'scp-label': 'Tài liệu SCP',
     'tale-label': 'Ngoại truyện',
     'goi-label': 'Tài liệu TLĐLT',
-    'art-label': 'Họa Phẩm',
+    'art-label': 'Họa phẩm',
     'random-tag-label': 'Page Tagged With',
     // Random Page Info
     'tags': 'Tag',
@@ -125,9 +127,9 @@ var TRANSLATIONS = {
     'loaded-goi': 'Đã tải xong tài liệu TLĐLT ngẫu nhiên.',
     'loaded-art': 'Đã tải xong Họa phẩm ngẫu nhiên.',
     'loaded-tag': 'Loaded random page tagged "%%tag%%".',
-    'error-no-page': 'Không trả về được kết quả.',
+    'error-no-page': 'Kết quả trả về không thành công.',
     'error-unknown-kind': 'Không rõ phân loại ngẫu nhiên.',
-    'error-rate-limit': 'Đã đạt giới hạn cho phép. Hãy thử lại trong %%seconds%% giây.',
+    'error-rate-limit': 'Đã đạt giới hạn cho phép. Hãy thử lại sau %%seconds%% giây.',
     // Branch URL
     'wiki-url': 'http://scp-vn.wikidot.com',
   },
@@ -135,6 +137,7 @@ var TRANSLATIONS = {
   'fr': {
     // Header
     'title': 'Article au hasard',
+    'credit': '',
     'instructions': 'Obtenez un rapport SCP, conte ou format GdI au hasard.',
     // Buttons
     'scp-btn': 'SCP au hasard',
@@ -145,7 +148,7 @@ var TRANSLATIONS = {
     'scp-label': 'Rapport SCP',
     'tale-label': 'Conte',
     'goi-label': 'Format GdI',
-    'art-label': 'Artwork',
+    'art-label': '',
     'random-tag-label': 'Article Tagged With',
     // Random Page Info
     'tags': 'Tags',
@@ -162,7 +165,7 @@ var TRANSLATIONS = {
     'loaded-scp': 'Rapport trouvé.',
     'loaded-tale': 'Conte trouvé.',
     'loaded-goi': 'Format GdI trouvé.',
-    'loaded-art': 'Loaded random Artwork.',
+    'loaded-art': '',
     'loaded-tag': 'Loaded random page tagged "%%tag%%".',
     'error-no-page': 'Aucune page trouvée.',
     'error-unknown-kind': 'Type inconnu.',
@@ -214,9 +217,12 @@ const language = getLang();
 function initializeMessages(language) {
   document.documentElement.lang = language;
 
+  document.getElementById('credit').textContent =
+    getMessage(language, 'credit');
+  
   document.getElementById('page-title').textContent =
     getMessage(language, 'title');
-
+  
   document.getElementById('page-subtitle').textContent =
     getMessage(language, 'instructions');
 
@@ -226,8 +232,16 @@ function initializeMessages(language) {
   randomScpBtn.textContent = getMessage(language, 'scp-btn');
   randomTaleBtn.textContent = getMessage(language, 'tale-btn');
   randomGoiBtn.textContent = getMessage(language, 'goi-btn');
-  randomArtBtn.textContent = getMessage(language, 'art-btn');
 
+  if (language === "fr") { // -FR has Asked for "Random Art" to be Removed
+    randomArtBtn.classList.add("hidden");
+    randomArtBtn.disabled = true;
+  } else {
+    randomArtBtn.textContent = getMessage(language, 'art-btn');
+    randomArtBtn.classList.remove("hidden");
+    randomArtBtn.disabled = false;
+  }
+    
   statusEl.textContent = getMessage(language, 'ready');
 }
 
