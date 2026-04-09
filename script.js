@@ -1,8 +1,12 @@
 const CROM_ENDPOINT = "https://apiv1.crom.avn.sh/graphql";
+
+// For Isolating Preview Text from Source
 const PREVIEW_REGEX =
   /\[\[include\s+(?::[a-z0-9-]{1,12}:)?component:preview\s+(?:\|\s*)?text\s*=\s*(.+?)\s*\]\]/ms;
 
 const statusEl = document.getElementById("status");
+
+// Result Elements
 const cardEl = document.getElementById("result-card");
 const typeEl = document.getElementById("result-type");
 const titleEl = document.getElementById("result-title");
@@ -13,16 +17,19 @@ const altTitleEl = document.getElementById("result-alt-title");
 const previewEl = document.getElementById("result-preview");
 const thumbnailEl = document.getElementById("result-thumbnail");
 
+// Top Button Elements
 const randomScpBtn = document.getElementById("random-scp-btn");
 const randomTaleBtn = document.getElementById("random-tale-btn");
 const randomGoiBtn = document.getElementById("random-goi-btn");
 const randomArtBtn = document.getElementById("random-art-btn");
 
+// Rate Limit for Queries (12/min)
 const RATE_LIMIT_MAX_REQUESTS = 12;
 const RATE_LIMIT_WINDOWS_MS = 60 * 1000;
 
 const requestTimeStamps = [];
 
+// Tags associated with 'scp', 'tale', 'goi-format', and 'artwork' for each branch
 const TAG_MAP = {
   // English
   en: {
@@ -160,10 +167,12 @@ var TRANSLATIONS = {
     'error-no-page': 'Aucune page trouvée.',
     'error-unknown-kind': 'Type inconnu.',
     'error-rate-limit': 'Limite de requête atteinte. Merci de réessayer dans %%seconds%% secondes.',
+    // Branch URL
     'wiki-url': 'http://fondationscp.wikidot.com',
   },
 };
 
+// Rate Limit
 function checkRateLimit() {
   const now = Date.now();
 
@@ -181,7 +190,7 @@ function checkRateLimit() {
   return {allowed: true, waitMs: 0};
 }
       
-
+// Setting language with ?lang=(en,fr,vn...)
 function getLang() {
   const params = new URLSearchParams(window.location.search);
   const lang = params.get("lang");
@@ -194,12 +203,14 @@ function getLang() {
   return lang;
 }
 
+// Displays Localized Text
 function getMessage(language, key) {
   return TRANSLATIONS[language]?.[key] ?? TRANSLATIONS.en?.[key] ?? key;
 }
 
 const language = getLang();
 
+// Startup Layout
 function initializeMessages(language) {
   document.documentElement.lang = language;
 
@@ -220,6 +231,7 @@ function initializeMessages(language) {
   statusEl.textContent = getMessage(language, 'ready');
 }
 
+// Crom Query Structure
 function buildRandomQuery(tag, language) {
   const wikiUrl = getMessage(language, 'wiki-url');
 
@@ -263,6 +275,7 @@ function normalizeTags(tags) {
   return Array.isArray(tags) ? tags : [];
 }
 
+// Removes Hidden and Crom Tags
 function filterDisplayTags(tags) {
   return normalizeTags(tags).filter(tag =>
     typeof tag === "string" &&
@@ -271,6 +284,7 @@ function filterDisplayTags(tags) {
   );
 }
 
+// Page Rating
 function normalizeRating(rating) {
   if (rating === null || rating === undefined || rating === "") {
     return "N/A";
@@ -278,10 +292,12 @@ function normalizeRating(rating) {
   return String(rating);
 }
 
+// Removes Tags Between Queries
 function clearTags() {
   tagsEl.innerHTML = "";
 }
 
+// Displays Tags. Users can Click a Tag to View a Randomly Selected Page Containing That Tag
 function renderTags(tags, language) {
   clearTags();
 
@@ -305,10 +321,9 @@ function renderTags(tags, language) {
     
     tagsEl.appendChild(button);
   }
-
-  
 }
 
+// Crom API Query
 async function cromApiRequest(query, variables = null) {
   const response = await fetch(CROM_ENDPOINT, {
     method: "POST",
@@ -331,6 +346,7 @@ async function cromApiRequest(query, variables = null) {
   return payload.data;
 }
 
+// Extracts Preview Text from Source (See Line 4)
 function extractPreviewText(pageSource) {
   if (!pageSource || typeof pageSource !== "string") {
     return "";
@@ -345,6 +361,7 @@ function extractPreviewText(pageSource) {
   return previewText;
 }
 
+// Stores Info from Crom Query
 function mapCromPageToRecord(page) {
   const source = page?.wikidotInfo?.source ?? "";
   
@@ -365,6 +382,7 @@ function mapCromPageToRecord(page) {
   };
 }
 
+// Displays Random Page Info
 function renderResult(record, kind, language, activeTag = null) {
   if (!record) {
     statusEl.textContent = getMessage(language, 'error-no-page');
@@ -377,6 +395,7 @@ function renderResult(record, kind, language, activeTag = null) {
   const rating = normalizeRating(record.rating);
   const previewText = record.previewText || "";
 
+  // Label Above Title
   if (kind === "tag" && activeTag) {
     typeEl.textContent = `${getMessage(language, 'random-tag-label')}: ${activeTag}`;
   } else {
@@ -390,6 +409,7 @@ function renderResult(record, kind, language, activeTag = null) {
         : getMessage(language, 'art-label');
   }
 
+  // Hyperlink for Title
   titleEl.innerHTML = "";
   const link = document.createElement("a");
   link.href = record.url || "#";
@@ -401,13 +421,16 @@ function renderResult(record, kind, language, activeTag = null) {
   scpNumberEl.textContent = "";
   scpNumberEl.classList.add("hidden");
 
+  // Author
   const authorText =
     Array.isArray(record.authors) && record.authors.length
       ? ` | ${getMessage(language, 'author')}: ${record.authors.join(", ")}`
       : "";
 
+  // Rating
   ratingEl.textContent = `${getMessage(language, 'rating')}: ${rating}${authorText}`;
 
+  // Alternate Title (If Applicable)
   if (alternateTitle) {
     altTitleEl.textContent = alternateTitle;
     altTitleEl.classList.remove("hidden");
@@ -416,6 +439,7 @@ function renderResult(record, kind, language, activeTag = null) {
     altTitleEl.classList.add("hidden");
   }
 
+  // Preview Text (If Applicable)
   if (previewText) {
     previewEl.textContent = previewText;
     previewEl.classList.remove("hidden");
@@ -424,6 +448,7 @@ function renderResult(record, kind, language, activeTag = null) {
     previewEl.classList.add("hidden");
   }
 
+  // Thumbnail (If Applicable)
   if (record.thumbnailUrl) {
     thumbnailEl.src = record.thumbnailUrl;
     thumbnailEl.alt = alternateTitle
@@ -434,11 +459,13 @@ function renderResult(record, kind, language, activeTag = null) {
     thumbnailEl.removeAttribute("src");
     thumbnailEl.classList.add("hidden");
   }
-  
+
+  // Tags
   renderTags(tags, language);
   cardEl.classList.remove("hidden");
 }
 
+// Top Buttons Functionality
 async function fetchAndRenderRandom(kind, language) {
   const rateLimit = checkRateLimit();
 
@@ -468,6 +495,7 @@ async function fetchAndRenderRandom(kind, language) {
   }
 }
 
+// Tag Button Functionality
 async function fetchAndRenderRandomByTag(tag, language) {
   const rateLimit = checkRateLimit();
 
@@ -499,6 +527,7 @@ async function fetchAndRenderRandomByTag(tag, language) {
   }
 }
 
+// Allows for Auto-Redirect to a Random Page using ?random=(scp,tale,goi,art)&lang=(en,fr,vn...). Enabled by checkAutoRedirect() (Line 566)
 async function fetchAndMaybeRedirect(kind, language, shouldRedirect = false) {
   const rateLimit = checkRateLimit();
 
@@ -552,6 +581,7 @@ function checkAutoRedirect() {
 
 checkAutoRedirect();
 
+// Top Button Triggers
 randomScpBtn?.addEventListener("click", () => {
   fetchAndRenderRandom("scp", language);
 });
