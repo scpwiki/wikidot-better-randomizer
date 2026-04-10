@@ -38,6 +38,7 @@ const TAG_MAP = {
     goi: "goi-format",
     art: "artwork",
   },
+  // Vietnamese
   vn: {
     scp: "scp",
     tale: "truyện",
@@ -137,36 +138,36 @@ var TRANSLATIONS = {
   'fr': {
     // Header
     'title': 'Article au hasard',
-    'credit': '',
+    'credit': 'Développé par l\'utilisateur Danjon56 de la branche EN',
     'instructions': 'Obtenez un rapport SCP, conte ou format GdI au hasard.',
     // Buttons
     'scp-btn': 'SCP au hasard',
     'tale-btn': 'Conte au hasard',
     'goi-btn': 'Format GdI au hasard',
-    'art-btn': 'Random Art',
+    'art-btn': '',
     // Labels above Random Page's Title
     'scp-label': 'Rapport SCP',
     'tale-label': 'Conte',
     'goi-label': 'Format GdI',
     'art-label': '',
-    'random-tag-label': 'Article Tagged With',
+    'random-tag-label': 'Page avec le tag',
     // Random Page Info
     'tags': 'Tags',
     'no-tags': 'Pas de tags',
-    'author': 'Auteur',
-    'rating': 'Note',
+    'author': 'Auteur ',
+    'rating': 'Note ',
     // Loading Text
     'ready': 'Prêt.',
     'loading-scp': 'Recherche d\'un rapport au hasard...',
     'loading-tale': 'Recherche d\'un conte au hasard...',
     'loading-goi': 'Recherche d\'un format GdI au hasard...',
-    'loading-art': 'Loading random artwork...',
-    'loading-tag': 'Loading random page tagged "%%tag%%"...',
+    'loading-art': '',
+    'loading-tag': 'Recherche d\'une page au hasard avec le tag "%%tag%%"...',
     'loaded-scp': 'Rapport trouvé.',
     'loaded-tale': 'Conte trouvé.',
     'loaded-goi': 'Format GdI trouvé.',
     'loaded-art': '',
-    'loaded-tag': 'Loaded random page tagged "%%tag%%".',
+    'loaded-tag': 'Page avec le "%%tag%%" trouvée.',
     'error-no-page': 'Aucune page trouvée.',
     'error-unknown-kind': 'Type inconnu.',
     'error-rate-limit': 'Limite de requête atteinte. Merci de réessayer dans %%seconds%% secondes.',
@@ -541,7 +542,7 @@ async function fetchAndRenderRandomByTag(tag, language) {
   }
 }
 
-// Allows for Auto-Redirect to a Random Page using ?random=(scp,tale,goi,art)&lang=(en,fr,vn...). Enabled by checkAutoRedirect() (Line 566)
+// Allows for Auto-Redirect to a Random Page using ?random=(scp,tale,goi,art)&lang=(en,fr,vn...). Enabled by checkAutoRedirect() (Line 579)
 async function fetchAndMaybeRedirect(kind, language, shouldRedirect = false) {
   const rateLimit = checkRateLimit();
 
