@@ -97,7 +97,7 @@ var TRANSLATIONS = {
   // Vietnamese
   'vn': {
     'title': 'Bộ chọn SCP Ngẫu nhiên Tốt hơn',
-    'credit': 'Made by -EN user Danjon56',
+    'credit': 'Được phát triển bởi người dùng danjon56 -EN',
     'instructions': 'Chọn một trang SCP, Ngoại truyện, hoặc tài liệu TLĐLT ngẫu nhiên.',
     // Buttons
     'scp-btn': 'SCP Ngẫu Nhiên',
