@@ -150,7 +150,7 @@ var TRANSLATIONS = {
     'tale-label': 'Conte',
     'goi-label': 'Format GdI',
     'art-label': '',
-    'random-tag-label': 'Page avec le tag',
+    'random-tag-label': 'Page avec le tag ',
     // Random Page Info
     'tags': 'Tags',
     'no-tags': 'Pas de tags',
