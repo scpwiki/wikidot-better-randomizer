@@ -38,6 +38,12 @@ h1 {
   margin-bottom: 20px;
 }
 
+.toggle-row {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: flex-start;
+}
+
 button {
   background: #2a2a2a;
   background-image: linear-gradient(to bottom, #966, #633, #300); /* Taken from the Wiki Search Button */
