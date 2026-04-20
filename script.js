@@ -111,8 +111,9 @@ var TRANSLATIONS = {
     'goi-btn': 'TLĐLT Ngẫu nhiên',
     'art-btn': 'Họa phẩm Ngẫu nhiên',
     // Exclude "_adult" Tag Toggle
-    'include-adult-off': 'Include Adult Pages: Off',
-    'include-adult-on': 'Include Adult Pages: On',
+    'include-adult-off': 'Bao gồm bài viết người lớn : Tắt',
+    'include-adult-on': 'Bao gồm bài viết người lớn : Bật',
+    'adult-tag': '_người-lớn',
     // Labels above Random Page's Title
     'scp-label': 'Tài liệu SCP',
     'tale-label': 'Ngoại truyện',
@@ -154,8 +155,8 @@ var TRANSLATIONS = {
     'goi-btn': 'Format GdI au hasard',
     'art-btn': '',
     // Exclude "_adult" Tag Toggle
-    'include-adult-off': 'Include Adult Pages : Off',
-    'include-adult-on': 'Include Adult Pages : On',
+    'include-adult-off': 'Inclure les pages au contenu sensible : Non',
+    'include-adult-on': 'Inclure les pages au contenu sensible : Oui',
     'adult-tag': 'adulte',
     // Labels above Random Page's Title
     'scp-label': 'Rapport SCP',
