@@ -6,6 +6,17 @@ const PREVIEW_REGEX =
 
 const statusEl = document.getElementById("status");
 
+// Custom Seach Elements
+const menuToggleBtn = document.getElementById("menu-toggle-btn");
+const menuPanel = document.getElementById("menu-panel");
+const menuCloseBtn = document.getElementById("menu-close-btn");
+const customSearchKindSelect = document.getElementById("custom-search-kind-select");
+const customSearchTagsInput = document.getElementById("custom-search-tags-input");
+const customSearchAuthorInput = document.getElementById("custom-search-author-input");
+const customSearchIncludeAdultBtn = document.getElementById("custom-search-include-adult");
+const customSearchIncludeAdultLabel = document.getElementById("custom-search-include-adult-label");
+const customSearchSubmitBtn = document.getElementById("custom-search-submit-btn");
+
 // Result Elements
 const cardEl = document.getElementById("result-card");
 const typeEl = document.getElementById("result-type");
@@ -71,6 +82,22 @@ var TRANSLATIONS = {
     'include-adult-off': 'Include Adult Pages: Off',
     'include-adult-on': 'Include Adult Pages: On',
     'adult-tag': '_adult',
+    // Custom Search
+    'custom-search-submit': 'Get Random Page',
+    'custom-search-kind-label': 'Content Type',
+    'custom-search-kind-any': 'Any',
+    'custom-search-kind-scp': 'SCP',
+    'custom-search-kind-tale': 'Tale',
+    'custom-search-kind-goi': 'GoI',
+    'custom-search-kind-art': 'Art',
+    'custom-search-tags-label': 'Tags',
+    'custom-search-author-label': 'Author',
+    'custom-search-tags-placeholder': 'scp, euclid, horror',
+    'custom-search-author-placeholder': 'Dr Gears',
+    'custom-search-include-adult': 'Include Adult Pages',
+    'loading-custom-search': 'Loading random page...',
+    'loaded-custom-search': 'Loaded random page.',
+    'error-custom-search-empty': 'Enter at least one filter.',
     // Labels above Random Page's Title
     'scp-label': 'SCP Article',
     'tale-label': 'Tale',
@@ -114,6 +141,22 @@ var TRANSLATIONS = {
     'include-adult-off': 'Bao gồm bài viết người lớn : Tắt',
     'include-adult-on': 'Bao gồm bài viết người lớn : Bật',
     'adult-tag': '_người-lớn',
+    // Custom Search
+    'custom-search-submit': 'Get Random Page',
+    'custom-search-kind-label': 'Content Type',
+    'custom-search-kind-any': 'Any',
+    'custom-search-kind-scp': 'SCP',
+    'custom-search-kind-tale': 'Tale',
+    'custom-search-kind-goi': 'GoI',
+    'custom-search-kind-art': 'Art',
+    'custom-search-tags-label': 'Tags',
+    'custom-search-author-label': 'Author',
+    'custom-search-tags-placeholder': 'scp, euclid, horror',
+    'custom-search-author-placeholder': 'Dr Gears',
+    'custom-search-include-adult': 'Include Adult Pages',
+    'loading-custom-search': 'Loading random page...',
+    'loaded-custom-search': 'Loaded random page.',
+    'error-custom-search-empty': 'Enter at least one filter.',
     // Labels above Random Page's Title
     'scp-label': 'Tài liệu SCP',
     'tale-label': 'Ngoại truyện',
@@ -158,6 +201,22 @@ var TRANSLATIONS = {
     'include-adult-off': 'Inclure les pages au contenu sensible : Non',
     'include-adult-on': 'Inclure les pages au contenu sensible : Oui',
     'adult-tag': 'adulte',
+    // Custom Search
+    'custom-search-submit': 'Get Random Page',
+    'custom-search-kind-label': 'Content Type',
+    'custom-search-kind-any': 'Any',
+    'custom-search-kind-scp': 'SCP',
+    'custom-search-kind-tale': 'Tale',
+    'custom-search-kind-goi': 'GoI',
+    'custom-search-kind-art': 'Art',
+    'custom-search-tags-label': 'Tags',
+    'custom-search-author-label': 'Author',
+    'custom-search-tags-placeholder': 'scp, euclid, horror',
+    'custom-search-author-placeholder': 'Dr Gears',
+    'custom-search-include-adult': 'Include Adult Pages',
+    'loading-custom-search': 'Loading random page...',
+    'loaded-custom-search': 'Loaded random page.',
+    'error-custom-search-empty': 'Enter at least one filter.',
     // Labels above Random Page's Title
     'scp-label': 'Rapport SCP',
     'tale-label': 'Conte',
@@ -242,6 +301,23 @@ function updateAdultToggleLabel(language) {
   adultToggleBtn.classList.toggle("is-active", includeAdultPages);
 }
 
+let customSearchIncludeAdultPages = false;
+
+// Same as updateAdultToggleLabel, but for the Custom Search
+function updateCustomSearchAdultToggle(language) {
+  if (!customSearchIncludeAdultBtn) return;
+
+  customSearchIncludeAdultBtn.setAttribute(
+    "aria-pressed",
+    String(customSearchIncludeAdultPages)
+  );
+
+  if (customSearchIncludeAdultLabel) {
+    customSearchIncludeAdultLabel.textContent =
+      getMessage(language, 'custom-search-include-adult');
+  }
+}
+
 // Startup Layout
 function initializeMessages(language) {
   document.documentElement.lang = language;
@@ -271,11 +347,51 @@ function initializeMessages(language) {
     randomArtBtn.disabled = false;
   }
 
+  // Custom Menu
+  if (customSearchSubmitBtn) {
+    customSearchSubmitBtn.textContent = getMessage(language, 'custom-search-submit');
+  }
+
+  const kindLabel = document.querySelector('label[for="custom-search-kind-select"]');
+  const tagsLabel = document.querySelector('label[for="custom-search-tags-input"]');
+  const authorLabel = document.querySelector('label[for="custom-search-author-input"]');
+
+  if (kindLabel) {
+    kindLabel.textContent = getMessage(language, 'custom-search-kind-label');
+  }
+
+  if (tagsLabel) {
+    tagsLabel.textContent = getMessage(language, 'custom-search-tags-label');
+  }
+
+  if (authorLabel) {
+    authorLabel.textContent = getMessage(language, 'custom-search-author-label');
+  }
+
+  if (customSearchKindSelect) {
+    customSearchKindSelect.innerHTML = `
+      <option value="">${getMessage(language, 'custom-search-kind-any')}</option>
+      <option value="scp">${getMessage(language, 'custom-search-kind-scp')}</option>
+      <option value="tale">${getMessage(language, 'custom-search-kind-tale')}</option>
+      <option value="goi">${getMessage(language, 'custom-search-kind-goi')}</option>
+      ${language === "fr" ? "" : `<option value="art">${getMessage(language, 'custom-search-kind-art')}</option>`}
+    `;
+  }
+
+  if (customSearchTagsInput) {
+    customSearchTagsInput.placeholder = getMessage(language, 'custom-search-tags-placeholder');
+  }
+
+  if (customSearchAuthorInput) {
+    customSearchAuthorInput.placeholder = getMessage(language, 'custom-search-author-placeholder');
+  }
+  
   updateAdultToggleLabel(language);
+  updateCustomSearchAdultToggle(language);
   statusEl.textContent = getMessage(language, 'ready');
 }
 
-// Crom Query Structure
+// Crom Query Structure (Main Buttons)
 function buildRandomQuery(tag, language) {
   const wikiUrl = getMessage(language, 'wiki-url');
   const adultTag = getMessage(language, 'adult-tag');
@@ -313,9 +429,86 @@ function buildRandomQuery(tag, language) {
   `;
 }
 
+// Crom Query Structure (Custom Search)
+function buildCustomRandomQuery(kind, tagsInput, authorInput, includeAdult, language) {
+  const wikiUrl = getMessage(language, 'wiki-url');
+  const adultTag = getMessage(language, 'adult-tag');
+
+  const tags = tagsInput
+    .split(',')
+    .map(tag => tag.trim())
+    .filter(Boolean);
+
+  const author = authorInput.trim();
+  const kindTag = getTagForKind(kind, language);
+
+  if (!tags.length && !author && !kindTag) {
+    throw new Error(getMessage(language, 'error-custom-search-empty'));
+  }
+
+  const allTags = [...tags];
+
+  if (kindTag && !allTags.includes(kindTag)) {
+    allTags.unshift(kindTag);
+  }
+
+  const filterParts = [
+    `anyBaseUrl: ["${wikiUrl}"]`
+  ];
+
+  // Tags
+  if (allTags.length) {
+    filterParts.push(`allTags: ${JSON.stringify(allTags)}`);
+  }
+
+  // Author
+  if (author) {
+    filterParts.push(`allAttributedUsers: ${JSON.stringify([author])}`);
+  }
+
+  // _adult Tag
+  if (!includeAdult) {
+    filterParts.push(`noneTags: ["${adultTag}"]`);
+  }
+
+  return `
+    query RandomPage {
+      randomPage(
+        filter: {
+          ${filterParts.join('\n          ')}
+        }
+      ) {
+        page {
+          url
+          alternateTitles {
+            title
+          }
+          wikidotInfo {
+            title
+            rating
+            tags
+            thumbnailUrl
+            source
+          }
+          attributions {
+            user {
+              name
+            }
+          }
+        }
+      }
+    }
+  `;
+}
+
 function getQueryForKind(kind, language) {
   const tag = TAG_MAP[language]?.[kind] || TAG_MAP.en[kind];
   return buildRandomQuery(tag, language);
+}
+
+function getTagForKind(kind, language) {
+  if (!kind) return null;
+  return TAG_MAP[language]?.[kind] || TAG_MAP.en[kind] || null;
 }
 
 function normalizeTags(tags) {
@@ -574,6 +767,70 @@ async function fetchAndRenderRandomByTag(tag, language) {
   }
 }
 
+// Custom Menu Functionality
+async function fetchAndRenderCustomRandom(kind, tagsInput, authorInput, includeAdult, language) {
+  const rateLimit = checkRateLimit();
+
+  if (!rateLimit.allowed) {
+    const waitSeconds = Math.ceil(rateLimit.waitMs / 1000);
+    statusEl.textContent = getMessage(language, 'error-rate-limit')
+      .replace('%%seconds%%', waitSeconds);
+    return;
+  }
+
+  try {
+    statusEl.textContent = getMessage(language, 'loading-custom-search');
+
+    const query = buildCustomRandomQuery(
+      kind,
+      tagsInput,
+      authorInput,
+      includeAdult,
+      language
+    );
+
+    const data = await cromApiRequest(query);
+    const page = data?.randomPage?.page;
+
+    if (!page) {
+      throw new Error(getMessage(language, 'error-no-page'));
+    }
+
+    const activeLabelParts = [];
+
+    const kindTag = getTagForKind(kind, language);
+    const cleanedTags = tagsInput
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(Boolean);
+    const cleanedAuthor = authorInput.trim();
+
+    if (kindTag) {
+      activeLabelParts.push(kindTag);
+    }
+
+    if (cleanedTags.length) {
+      activeLabelParts.push(cleanedTags.join(", "));
+    }
+
+    if (cleanedAuthor) {
+      activeLabelParts.push(cleanedAuthor);
+    }
+
+    renderResult(
+      mapCromPageToRecord(page),
+      "tag",
+      language,
+      activeLabelParts.join(" | ")
+    );
+
+    statusEl.textContent = getMessage(language, 'loaded-custom-search');
+  } catch (error) {
+    console.error(error);
+    statusEl.textContent = error.message;
+  }
+}
+
 // Allows for Auto-Redirect to a Random Page using ?random=(scp,tale,goi,art)&lang=(en,fr,vn...). Enabled by checkAutoRedirect()
 async function fetchAndMaybeRedirect(kind, language, shouldRedirect = false) {
   const rateLimit = checkRateLimit();
@@ -650,3 +907,81 @@ adultToggleBtn?.addEventListener("click", () => {
   updateAdultToggleLabel(language);
 });
 
+menuToggleBtn?.addEventListener("click", () => {
+  const isOpen = !menuPanel.classList.contains("hidden");
+
+  menuPanel.classList.toggle("hidden");
+  menuToggleBtn.setAttribute("aria-expanded", String(!isOpen));
+});
+
+menuCloseBtn?.addEventListener("click", () => {
+  menuPanel.classList.add("hidden");
+  menuToggleBtn.setAttribute("aria-expanded", "false");
+});
+
+customSearchIncludeAdultBtn?.addEventListener("click", () => {
+  customSearchIncludeAdultPages = !customSearchIncludeAdultPages;
+  updateCustomSearchAdultToggle(language);
+});
+
+customSearchSubmitBtn?.addEventListener("click", () => {
+  const kind = customSearchKindSelect?.value ?? "";
+  const tagsInput = customSearchTagsInput?.value ?? "";
+  const authorInput = customSearchAuthorInput?.value ?? "";
+
+  fetchAndRenderCustomRandom(
+    kind,
+    tagsInput,
+    authorInput,
+    customSearchIncludeAdultPages,
+    language
+  );
+});
+
+customSearchTagsInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    const kind = customSearchKindSelect?.value ?? "";
+    const tagsInput = customSearchTagsInput?.value ?? "";
+    const authorInput = customSearchAuthorInput?.value ?? "";
+
+    fetchAndRenderCustomRandom(
+      kind,
+      tagsInput,
+      authorInput,
+      customSearchIncludeAdultPages,
+      language
+    );
+  }
+});
+
+customSearchAuthorInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    const kind = customSearchKindSelect?.value ?? "";
+    const tagsInput = customSearchTagsInput?.value ?? "";
+    const authorInput = customSearchAuthorInput?.value ?? "";
+
+    fetchAndRenderCustomRandom(
+      kind,
+      tagsInput,
+      authorInput,
+      customSearchIncludeAdultPages,
+      language
+    );
+  }
+});
+
+customSearchKindSelect?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    const kind = customSearchKindSelect?.value ?? "";
+    const tagsInput = customSearchTagsInput?.value ?? "";
+    const authorInput = customSearchAuthorInput?.value ?? "";
+
+    fetchAndRenderCustomRandom(
+      kind,
+      tagsInput,
+      authorInput,
+      customSearchIncludeAdultPages,
+      language
+    );
+  }
+});
