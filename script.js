@@ -70,6 +70,7 @@ var TRANSLATIONS = {
     // Exclude "_adult" Tag Toggle
     'include-adult-off': 'Include Adult Pages: Off',
     'include-adult-on': 'Include Adult Pages: On',
+    'adult-tag': '_adult',
     // Labels above Random Page's Title
     'scp-label': 'SCP Article',
     'tale-label': 'Tale',
@@ -153,8 +154,9 @@ var TRANSLATIONS = {
     'goi-btn': 'Format GdI au hasard',
     'art-btn': '',
     // Exclude "_adult" Tag Toggle
-    'include-adult-off': 'Include Adult Pages: Off',
-    'include-adult-on': 'Include Adult Pages: On',
+    'include-adult-off': 'Include Adult Pages : Off',
+    'include-adult-on': 'Include Adult Pages : On',
+    'adult-tag': 'adulte',
     // Labels above Random Page's Title
     'scp-label': 'Rapport SCP',
     'tale-label': 'Conte',
@@ -275,7 +277,8 @@ function initializeMessages(language) {
 // Crom Query Structure
 function buildRandomQuery(tag, language) {
   const wikiUrl = getMessage(language, 'wiki-url');
-  const adultFilter = includeAdultPages ? '' : 'noneTags: ["_adult"]';
+  const adultTag = getMessage(language, 'adult-tag');
+  const adultFilter = includeAdultPages ? '' : `noneTags: ["${adultTag}"]`;
 
   return `
     query RandomPage {
