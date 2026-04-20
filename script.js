@@ -22,6 +22,7 @@ const randomScpBtn = document.getElementById("random-scp-btn");
 const randomTaleBtn = document.getElementById("random-tale-btn");
 const randomGoiBtn = document.getElementById("random-goi-btn");
 const randomArtBtn = document.getElementById("random-art-btn");
+const adultToggleBtn = document.getElementById("adult-toggle-btn");
 
 // Rate Limit for Queries (12/min)
 const RATE_LIMIT_MAX_REQUESTS = 12;
@@ -66,6 +67,9 @@ var TRANSLATIONS = {
     'tale-btn': 'Random Tale',
     'goi-btn': 'Random GoI',
     'art-btn': 'Random Art',
+    // Exclude "_adult" Tag Toggle
+    'include-adult-off': 'Include Adult Pages: Off',
+    'include-adult-on': 'Include Adult Pages: On',
     // Labels above Random Page's Title
     'scp-label': 'SCP Article',
     'tale-label': 'Tale',
@@ -105,6 +109,9 @@ var TRANSLATIONS = {
     'tale-btn': 'Ngoại truyện Ngẫu nhiên',
     'goi-btn': 'TLĐLT Ngẫu nhiên',
     'art-btn': 'Họa phẩm Ngẫu nhiên',
+    // Exclude "_adult" Tag Toggle
+    'include-adult-off': 'Include Adult Pages: Off',
+    'include-adult-on': 'Include Adult Pages: On',
     // Labels above Random Page's Title
     'scp-label': 'Tài liệu SCP',
     'tale-label': 'Ngoại truyện',
@@ -145,6 +152,9 @@ var TRANSLATIONS = {
     'tale-btn': 'Conte au hasard',
     'goi-btn': 'Format GdI au hasard',
     'art-btn': '',
+    // Exclude "_adult" Tag Toggle
+    'include-adult-off': 'Include Adult Pages: Off',
+    'include-adult-on': 'Include Adult Pages: On',
     // Labels above Random Page's Title
     'scp-label': 'Rapport SCP',
     'tale-label': 'Conte',
@@ -214,6 +224,21 @@ function getMessage(language, key) {
 
 const language = getLang();
 
+// Defaults to Excluding "_adult" on Startup
+let includeAdultPages = false;
+
+// Displays Inclusion/Exclusion of "_adult" Pages for User
+function updateAdultToggleLabel(language) {
+  if (!adultToggleBtn) return;
+
+  adultToggleBtn.textContent = getMessage(
+    language,
+    includeAdultPages ? 'include-adult-on' : 'include-adult-off'
+  );
+  adultToggleBtn.setAttribute("aria-pressed", String(includeAdultPages));
+  adultToggleBtn.classList.toggle("is-active", includeAdultPages);
+}
+
 // Startup Layout
 function initializeMessages(language) {
   document.documentElement.lang = language;
@@ -242,13 +267,15 @@ function initializeMessages(language) {
     randomArtBtn.classList.remove("hidden");
     randomArtBtn.disabled = false;
   }
-    
+
+  updateAdultToggleLabel(language);
   statusEl.textContent = getMessage(language, 'ready');
 }
 
 // Crom Query Structure
 function buildRandomQuery(tag, language) {
   const wikiUrl = getMessage(language, 'wiki-url');
+  const adultFilter = includeAdultPages ? '' : 'noneTags: ["_adult"]';
 
   return `
     query RandomPage {
@@ -256,6 +283,7 @@ function buildRandomQuery(tag, language) {
         filter: {
           allTags: ["${tag}"]
           anyBaseUrl: ["${wikiUrl}"]
+          ${adultFilter}
         }
       ) {
         page {
@@ -542,7 +570,7 @@ async function fetchAndRenderRandomByTag(tag, language) {
   }
 }
 
-// Allows for Auto-Redirect to a Random Page using ?random=(scp,tale,goi,art)&lang=(en,fr,vn...). Enabled by checkAutoRedirect() (Line 579)
+// Allows for Auto-Redirect to a Random Page using ?random=(scp,tale,goi,art)&lang=(en,fr,vn...). Enabled by checkAutoRedirect()
 async function fetchAndMaybeRedirect(kind, language, shouldRedirect = false) {
   const rateLimit = checkRateLimit();
 
@@ -611,5 +639,10 @@ randomGoiBtn?.addEventListener("click", () => {
 
 randomArtBtn?.addEventListener("click", () => {
   fetchAndRenderRandom("art", language);
+});
+
+adultToggleBtn?.addEventListener("click", () => {
+  includeAdultPages = !includeAdultPages;
+  updateAdultToggleLabel(language);
 });
 
