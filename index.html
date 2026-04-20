@@ -8,7 +8,43 @@
 </head>
 <body>
   <main class="container">
-    <p id="credit" class="credit"></p>
+    <div id="credit" class="credit"></div>
+
+    <button id="menu-toggle-btn" class="menu-btn" type="button" aria-expanded="false">
+      ☰
+    </button>
+
+  <div id="menu-panel" class="menu-panel hidden">
+    <button id="menu-close-btn" class="menu-close-btn" type="button">✕</button>
+
+    <label for="custom-search-kind-select"></label>
+    <select id="custom-search-kind-select"></select>
+
+    <label for="custom-search-tags-input"></label>
+    <input
+      id="custom-search-tags-input"
+      type="text"
+    />
+
+    <label for="custom-search-author-input"></label>
+    <input
+      id="custom-search-author-input"
+      type="text"
+    />
+
+    <div class="custom-checkbox-row">
+      <button
+        id="custom-search-include-adult"
+        type="button"
+        class="custom-checkbox"
+        aria-pressed="false"
+      ></button>
+      <span id="custom-search-include-adult-label"></span>
+    </div>
+
+    <button id="custom-search-submit-btn" type="button"></button>
+  </div>
+    
     <h1 id="page-title"></h1>
     <p id="page-subtitle" class="subtitle"></p>
 
