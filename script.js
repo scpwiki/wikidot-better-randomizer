@@ -908,14 +908,19 @@ adultToggleBtn?.addEventListener("click", () => {
 });
 
 menuToggleBtn?.addEventListener("click", () => {
+  if (!menuPanel || !menuToggleBtn) return;
   const isOpen = !menuPanel.classList.contains("hidden");
 
   menuPanel.classList.toggle("hidden");
+  menuToggleBtn.classList.toggle("hidden", !isOpen);
   menuToggleBtn.setAttribute("aria-expanded", String(!isOpen));
 });
 
 menuCloseBtn?.addEventListener("click", () => {
+  if (!menuPanel || !menuToggleBtn) return;
+  
   menuPanel.classList.add("hidden");
+  menuToggleBtn.classList.remove("hidden");
   menuToggleBtn.setAttribute("aria-expanded", "false");
 });
 
