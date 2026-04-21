@@ -436,7 +436,7 @@ function buildCustomRandomQuery(kind, tagsInput, authorInput, includeAdult, lang
 
   const tags = tagsInput
     .split(',')
-    .map(tag => tag.trim())
+    .map(tag => tag.trim().toLowerCase())
     .filter(Boolean);
 
   const author = authorInput.trim();
