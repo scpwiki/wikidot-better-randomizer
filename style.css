@@ -94,7 +94,7 @@ button:hover {
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   z-index: 999;
   overflow-y: auto;
 }
