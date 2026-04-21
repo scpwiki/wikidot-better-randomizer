@@ -218,12 +218,25 @@ h2 a:hover {
 #custom-search-kind-select,
 #custom-search-tags-input,
 #custom-search-author-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
   padding: 10px 12px;
   font-size: 16px;
+  line-height: 1.2;
   border: 1px solid #999;
   border-radius: 8px;
   color: #333;
   background: #fff;
+}
+
+#custom-search-kind-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
+  height: 44px;
+  line-height: normal;
 }
 
 .custom-checkbox-row {
