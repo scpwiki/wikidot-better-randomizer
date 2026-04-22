@@ -254,7 +254,7 @@ var TRANSLATIONS = {
     'wiki-url': 'http://fondationscp.wikidot.com',
   },
 // Polish
-  'en': {
+  'pl': {
     // Header
     'title': 'Lepsze losowanie SCP',
     'credit': '',
