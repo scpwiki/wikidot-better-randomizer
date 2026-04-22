@@ -63,6 +63,13 @@ const TAG_MAP = {
     tale: "conte",
     goi: "format-gdi",
     art: "fanart",
+  },
+  // French
+  pl: {
+    scp: "scp",
+    tale: "opowieść",
+    goi: "goi-format",
+    art: "fanart",
   }
 };
 
@@ -246,7 +253,69 @@ var TRANSLATIONS = {
     // Branch URL
     'wiki-url': 'http://fondationscp.wikidot.com',
   },
+// Polish
+  'en': {
+    // Header
+    'title': 'Lepsze losowanie SCP',
+    'credit': '',
+    'instructions': 'Wybierz losowy artykuł SCP, opowieść, albo GoI Format.',
+    // Buttons
+    'scp-btn': 'Losowy SCP',
+    'tale-btn': 'Losowa opowieść',
+    'goi-btn': 'Losowy GoI Format',
+    'art-btn': '',
+    // Exclude "_adult" Tag Toggle
+    'include-adult-off': 'Uwzględnij str. dla dorosłych: Wył.',
+    'include-adult-on': 'Uwzględnij str. dla dorosłych: Wł.',
+    'adult-tag': 'dla-dorosłych',
+    // Custom Search
+    'custom-search-submit': 'Losuj stronę',
+    'custom-search-kind-label': 'Rodzaj treści',
+    'custom-search-kind-any': 'Dowolna',
+    'custom-search-kind-scp': 'SCP',
+    'custom-search-kind-tale': 'Opowieść',
+    'custom-search-kind-goi': 'GoI Format',
+    'custom-search-kind-art': '',
+    'custom-search-tags-label': 'Tagi',
+    'custom-search-author-label': 'Autor',
+    'custom-search-tags-placeholder': 'euclid, horror, antymemetyczne',
+    'custom-search-author-placeholder': 'Wpisz autora.',
+    'custom-search-include-adult': 'Uwzględnij str. dla dorosłych',
+    'loading-custom-search': 'Wybieranie losowej strony...',
+    'loaded-custom-search': 'Wybrano losową stronę.',
+    'error-custom-search-empty': 'Wybierz co najmniej jeden filtr.',
+    // Labels above Random Page's Title
+    'scp-label': 'Raport SCP',
+    'tale-label': 'Opowieść',
+    'goi-label': 'GoI Format',
+    'art-label': '',
+    'random-tag-label': 'Tagi strony',
+    // Random Page Info
+    'tags': 'Tagi',
+    'no-tags': 'Brak tagów',
+    'author': 'Autor',
+    'rating': 'Ocena',
+    // Loading Status and Errors
+    'ready': 'Gotowe.',
+    'loading-scp': 'Wybieranie losowego SCP...',
+    'loading-tale': 'Wybieranie losowej opowieści...',
+    'loading-goi': 'Wybieranie losowego Formatu GoI...',
+    'loading-art': '',
+    'loading-tag': 'Wybieranie losowej strony otagowanej "%%tag%%"...',
+    'loaded-scp': 'Wybrano losowego SCP.',
+    'loaded-tale': 'Wybrano losową opowieść.',
+    'loaded-goi': 'Wybrano losowy Format GoI.',
+    'loaded-art': '',
+    'loaded-tag': 'Wybrano losową stronę otagowaną "%%tag%%".',
+    'error-no-page': 'Brak kompatybilnych stron.',
+    'error-unknown-kind': 'Nieznany typ losowania.',
+    'error-rate-limit': 'Osiągnięto limit żądań. Spróbuj ponownie za %%seconds%% sekund.',
+    // Branch URL
+    'wiki-url': 'http://scp-pl.wikidot.com',
+  },
 };
+
+const disabledArt = ["fr", "pl"];
 
 // Rate Limit
 function checkRateLimit() {
@@ -272,7 +341,7 @@ function getLang() {
   const lang = params.get("lang");
   
   if (!lang || !TRANSLATIONS[lang]) {
-    statusEl.textContent = "Error: Missing or invalid language. Please add ?lang=(en, fr, or vn) to the end of the URL.";
+    statusEl.textContent = "Error: Missing or invalid language. Please add ?lang=(en, fr, vn, or pl) to the end of the URL.";
     throw new Error("Invalid language");
   }
 
@@ -338,7 +407,7 @@ function initializeMessages(language) {
   randomTaleBtn.textContent = getMessage(language, 'tale-btn');
   randomGoiBtn.textContent = getMessage(language, 'goi-btn');
 
-  if (language === "fr") { // -FR has Asked for "Random Art" to be Removed
+  if (disabledArt.includes(language.slice(0, 2))) { 
     randomArtBtn.classList.add("hidden");
     randomArtBtn.disabled = true;
   } else {
@@ -374,7 +443,7 @@ function initializeMessages(language) {
       <option value="scp">${getMessage(language, 'custom-search-kind-scp')}</option>
       <option value="tale">${getMessage(language, 'custom-search-kind-tale')}</option>
       <option value="goi">${getMessage(language, 'custom-search-kind-goi')}</option>
-      ${language === "fr" ? "" : `<option value="art">${getMessage(language, 'custom-search-kind-art')}</option>`}
+      ${disabledArt.includes(language) ? "" : `<option value="art">${getMessage(language, 'custom-search-kind-art')}</option>`}
     `;
   }
 
