@@ -391,27 +391,25 @@ function updateTranslationToggleLabel(language) {
 }
 
 function updateCustomSearchTranslationToggle(language) {
-  if (!customSearchIncludeTranslationsBtn) return;
-
-  customSearchIncludeTranslationsBtn.setAttribute(
-    "aria-pressed",
-    String(customSearchIncludeTranslations)
-  );
-
-  customSearchIncludeTranslationsBtn.classList.toggle(
-    "is-active",
-    customSearchIncludeTranslations
-  );
-
-  if (customSearchIncludeTranslationsLabel) {
-    customSearchIncludeTranslationsLabel.textContent =
-      "Uwzględnij tłumaczenia";
-  }
-
   const show = language === "pl";
 
-  customSearchIncludeTranslationsBtn.classList.toggle("hidden", !show);
-  customSearchIncludeTranslationsLabel?.classList.toggle("hidden", !show);
+  if (customSearchIncludeTranslationsBtn) {
+    customSearchIncludeTranslationsBtn.hidden = !show;
+    customSearchIncludeTranslationsBtn.setAttribute(
+      "aria-pressed",
+      String(customSearchIncludeTranslations)
+    );
+    customSearchIncludeTranslationsBtn.classList.toggle(
+      "is-active",
+      customSearchIncludeTranslations
+    );
+  }
+
+  if (customSearchIncludeTranslationsLabel) {
+    customSearchIncludeTranslationsLabel.hidden = !show;
+    customSearchIncludeTranslationsLabel.textContent =
+      getMessage(language, 'custom-search-include-translations');
+  }
 }
 
 // Same as updateAdultToggleLabel, but for the Custom Search
