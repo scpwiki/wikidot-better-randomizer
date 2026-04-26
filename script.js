@@ -35,7 +35,6 @@ const randomGoiBtn = document.getElementById("random-goi-btn");
 const randomArtBtn = document.getElementById("random-art-btn");
 const adultToggleBtn = document.getElementById("adult-toggle-btn");
 const translationToggleBtn = document.getElementById("translation-toggle-btn");
-const translationToggleLabel = document.getElementById("translation-toggle-label");
 
 // Rate Limit for Queries (12/min)
 const RATE_LIMIT_MAX_REQUESTS = 12;
@@ -376,22 +375,15 @@ let customSearchIncludeAdultPages = false;
 
 let includeTranslations = false;
 
-function updateTranslationToggle(language) {
+function updateTranslationToggleLabel(language) {
   if (!translationToggleBtn) return;
 
-  translationToggleBtn.setAttribute(
-    "aria-pressed",
-    String(includeTranslations)
-  );
+  translationToggleBtn.textContent = includeTranslations
+    ? "Uwzględnij tłumaczenia: ✓"
+    : "Uwzględnij tłumaczenia: X";
 
+  translationToggleBtn.setAttribute("aria-pressed", String(includeTranslations));
   translationToggleBtn.classList.toggle("is-active", includeTranslations);
-
-  if (translationToggleLabel) {
-    translationToggleLabel.textContent =
-      includeTranslations
-        ? "Uwzględnij tłumaczenia: ✓"
-        : "Uwzględnij tłumaczenia: X";
-  }
 }
 
 // Same as updateAdultToggleLabel, but for the Custom Search
@@ -440,10 +432,8 @@ function initializeMessages(language) {
 
   if (language === "pl") {
     translationToggleBtn?.classList.remove("hidden");
-    translationToggleLabel?.classList.remove("hidden");
   } else {
     translationToggleBtn?.classList.add("hidden");
-    translationToggleLabel?.classList.add("hidden");
   }
 
   // Custom Menu
@@ -485,7 +475,7 @@ function initializeMessages(language) {
     customSearchAuthorInput.placeholder = getMessage(language, 'custom-search-author-placeholder');
   }
 
-  updateTranslationToggle(language);
+  updateTranslationToggleLabel(language);
   updateAdultToggleLabel(language);
   updateCustomSearchAdultToggle(language);
   statusEl.textContent = getMessage(language, 'ready');
@@ -1021,7 +1011,7 @@ adultToggleBtn?.addEventListener("click", () => {
 
 translationToggleBtn?.addEventListener("click", () => {
   includeTranslations = !includeTranslations;
-  updateTranslationToggle(language);
+  updateTranslationToggleLabel(language);
 });
 
 menuToggleBtn?.addEventListener("click", () => {
