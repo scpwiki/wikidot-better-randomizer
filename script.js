@@ -34,8 +34,8 @@ const randomTaleBtn = document.getElementById("random-tale-btn");
 const randomGoiBtn = document.getElementById("random-goi-btn");
 const randomArtBtn = document.getElementById("random-art-btn");
 const adultToggleBtn = document.getElementById("adult-toggle-btn");
-const translationFilterWrapper = document.getElementById("translation-filter");
-const translationFilter = document.querySelector("#translation-filter input");
+const translationToggleBtn = document.getElementById("translation-toggle-btn");
+const translationToggleLabel = document.getElementById("translation-toggle-label");
 
 // Rate Limit for Queries (12/min)
 const RATE_LIMIT_MAX_REQUESTS = 12;
@@ -374,6 +374,26 @@ function updateAdultToggleLabel(language) {
 
 let customSearchIncludeAdultPages = false;
 
+let includeTranslations = false;
+
+function updateTranslationToggle(language) {
+  if (!translationToggleBtn) return;
+
+  translationToggleBtn.setAttribute(
+    "aria-pressed",
+    String(includeTranslations)
+  );
+
+  translationToggleBtn.classList.toggle("is-active", includeTranslations);
+
+  if (translationToggleLabel) {
+    translationToggleLabel.textContent =
+      includeTranslations
+        ? "Uwzględnij tłumaczenia: ✓"
+        : "Uwzględnij tłumaczenia: X";
+  }
+}
+
 // Same as updateAdultToggleLabel, but for the Custom Search
 function updateCustomSearchAdultToggle(language) {
   if (!customSearchIncludeAdultBtn) return;
@@ -419,9 +439,11 @@ function initializeMessages(language) {
   }
 
   if (language === "pl") {
-    translationFilterWrapper?.classList.remove("hidden");
+    translationToggleBtn?.classList.remove("hidden");
+    translationToggleLabel?.classList.remove("hidden");
   } else {
-    translationFilterWrapper?.classList.add("hidden");
+    translationToggleBtn?.classList.add("hidden");
+    translationToggleLabel?.classList.add("hidden");
   }
 
   // Custom Menu
@@ -462,7 +484,8 @@ function initializeMessages(language) {
   if (customSearchAuthorInput) {
     customSearchAuthorInput.placeholder = getMessage(language, 'custom-search-author-placeholder');
   }
-  
+
+  updateTranslationToggle(language);
   updateAdultToggleLabel(language);
   updateCustomSearchAdultToggle(language);
   statusEl.textContent = getMessage(language, 'ready');
@@ -478,7 +501,7 @@ function buildRandomQuery(tag, language) {
     noneTags.push(adultTag);
   }
 
-  if (language === "pl" && !translationFilter?.checked) {
+  if (language === "pl" && !includeTranslations) {
     noneTags.push("tłumaczenie");
   }
 
@@ -994,6 +1017,11 @@ randomArtBtn?.addEventListener("click", () => {
 adultToggleBtn?.addEventListener("click", () => {
   includeAdultPages = !includeAdultPages;
   updateAdultToggleLabel(language);
+});
+
+translationToggleBtn?.addEventListener("click", () => {
+  includeTranslations = !includeTranslations;
+  updateTranslationToggle(language);
 });
 
 menuToggleBtn?.addEventListener("click", () => {
