@@ -34,6 +34,8 @@ const randomTaleBtn = document.getElementById("random-tale-btn");
 const randomGoiBtn = document.getElementById("random-goi-btn");
 const randomArtBtn = document.getElementById("random-art-btn");
 const adultToggleBtn = document.getElementById("adult-toggle-btn");
+const translationFilterWrapper = document.getElementById("translation-filter");
+const translationFilter = document.querySelector("#translation-filter input");
 
 // Rate Limit for Queries (12/min)
 const RATE_LIMIT_MAX_REQUESTS = 12;
@@ -416,6 +418,12 @@ function initializeMessages(language) {
     randomArtBtn.disabled = false;
   }
 
+  if (language === "pl") {
+    translationFilterWrapper?.classList.remove("hidden");
+  } else {
+    translationFilterWrapper?.classList.add("hidden");
+  }
+
   // Custom Menu
   if (customSearchSubmitBtn) {
     customSearchSubmitBtn.textContent = getMessage(language, 'custom-search-submit');
@@ -464,7 +472,19 @@ function initializeMessages(language) {
 function buildRandomQuery(tag, language) {
   const wikiUrl = getMessage(language, 'wiki-url');
   const adultTag = getMessage(language, 'adult-tag');
-  const adultFilter = includeAdultPages ? '' : `noneTags: ["${adultTag}"]`;
+  const noneTags = [];
+
+  if (!includeAdultPages) {
+    noneTags.push(adultTag);
+  }
+
+  if (language === "pl" && !translationFilter?.checked) {
+    noneTags.push("tłumaczenie");
+  }
+
+  const noneTagsFilter = noneTags.length
+    ? `noneTags: ${JSON.stringify(noneTags)}`
+    : "";
 
   return `
     query RandomPage {
@@ -472,7 +492,7 @@ function buildRandomQuery(tag, language) {
         filter: {
           allTags: ["${tag}"]
           anyBaseUrl: ["${wikiUrl}"]
-          ${adultFilter}
+          ${noneTagsFilter}
         }
       ) {
         page {
