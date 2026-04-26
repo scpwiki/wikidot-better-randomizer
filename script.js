@@ -15,6 +15,8 @@ const customSearchTagsInput = document.getElementById("custom-search-tags-input"
 const customSearchAuthorInput = document.getElementById("custom-search-author-input");
 const customSearchIncludeAdultBtn = document.getElementById("custom-search-include-adult");
 const customSearchIncludeAdultLabel = document.getElementById("custom-search-include-adult-label");
+const customSearchIncludeTranslationsBtn = document.getElementById("custom-search-include-translations");
+const customSearchIncludeTranslationsLabel = document.getElementById("custom-search-include-translations-label");
 const customSearchSubmitBtn = document.getElementById("custom-search-submit-btn");
 
 // Result Elements
@@ -373,6 +375,8 @@ function updateAdultToggleLabel(language) {
 
 let customSearchIncludeAdultPages = false;
 
+let customSearchIncludeTranslations = false;
+
 let includeTranslations = false;
 
 function updateTranslationToggleLabel(language) {
@@ -384,6 +388,30 @@ function updateTranslationToggleLabel(language) {
 
   translationToggleBtn.setAttribute("aria-pressed", String(includeTranslations));
   translationToggleBtn.classList.toggle("is-active", includeTranslations);
+}
+
+function updateCustomSearchTranslationToggle(language) {
+  if (!customSearchIncludeTranslationsBtn) return;
+
+  customSearchIncludeTranslationsBtn.setAttribute(
+    "aria-pressed",
+    String(customSearchIncludeTranslations)
+  );
+
+  customSearchIncludeTranslationsBtn.classList.toggle(
+    "is-active",
+    customSearchIncludeTranslations
+  );
+
+  if (customSearchIncludeTranslationsLabel) {
+    customSearchIncludeTranslationsLabel.textContent =
+      "Uwzględnij tłumaczenia";
+  }
+
+  const show = language === "pl";
+
+  customSearchIncludeTranslationsBtn.classList.toggle("hidden", !show);
+  customSearchIncludeTranslationsLabel?.classList.toggle("hidden", !show);
 }
 
 // Same as updateAdultToggleLabel, but for the Custom Search
@@ -476,6 +504,7 @@ function initializeMessages(language) {
   }
 
   updateTranslationToggleLabel(language);
+  updateCustomSearchTranslationToggle(language);
   updateAdultToggleLabel(language);
   updateCustomSearchAdultToggle(language);
   statusEl.textContent = getMessage(language, 'ready');
@@ -568,9 +597,18 @@ function buildCustomRandomQuery(kind, tagsInput, authorInput, includeAdult, lang
     filterParts.push(`allAttributedUsers: ${JSON.stringify([author])}`);
   }
 
-  // _adult Tag
+  const noneTags = [];
+
   if (!includeAdult) {
-    filterParts.push(`noneTags: ["${adultTag}"]`);
+    noneTags.push(adultTag);
+  }
+
+  if (language === "pl" && !customSearchIncludeTranslations) {
+    noneTags.push("tłumaczenie");
+  }
+
+  if (noneTags.length) {
+    filterParts.push(`noneTags: ${JSON.stringify(noneTags)}`);
   }
 
   return `
@@ -1034,6 +1072,11 @@ menuCloseBtn?.addEventListener("click", () => {
 customSearchIncludeAdultBtn?.addEventListener("click", () => {
   customSearchIncludeAdultPages = !customSearchIncludeAdultPages;
   updateCustomSearchAdultToggle(language);
+});
+
+customSearchIncludeTranslationsBtn?.addEventListener("click", () => {
+  customSearchIncludeTranslations = !customSearchIncludeTranslations;
+  updateCustomSearchTranslationToggle(language);
 });
 
 customSearchSubmitBtn?.addEventListener("click", () => {
