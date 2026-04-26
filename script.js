@@ -284,6 +284,7 @@ var TRANSLATIONS = {
     'custom-search-tags-placeholder': 'euclid, horror, antymemetyczne',
     'custom-search-author-placeholder': 'Wpisz autora.',
     'custom-search-include-adult': 'Uwzględnij str. dla dorosłych',
+    'custom-search-include-translations': 'Uwzględnij tłumaczenia',
     'loading-custom-search': 'Wybieranie losowej strony...',
     'loaded-custom-search': 'Wybrano losową stronę.',
     'error-custom-search-empty': 'Wybierz co najmniej jeden filtr.',
