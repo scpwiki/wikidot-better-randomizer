@@ -67,12 +67,19 @@ const TAG_MAP = {
     goi: "format-gdi",
     art: "fanart",
   },
-  // French
+  // Polish
   pl: {
     scp: "scp",
     tale: "opowieść",
     goi: "goi-format",
     art: "fanart",
+  },
+  // Chinese
+  cn: {
+    scp: "scp",
+    tale: "故事",
+    goi: "goi格式",
+    art: "艺术作品",
   }
 };
 
@@ -326,9 +333,68 @@ var TRANSLATIONS = {
     // Branch URL
     'wiki-url': 'http://scp-pl.wikidot.com',
   },
+// Chinese
+  'cn': {
+    'title': '更好SCP随机化',
+    'credit': '',
+    'instructions': '选择随机SCP, 故事，或者 GoI格式.',
+    // 按钮
+    'scp-btn': '随机SCP',
+    'tale-btn': '随机故事',
+    'goi-btn': '随机GoI',
+    'art-btn': '随机艺术',
+    // Exclude "_成人" Tag Toggle
+    'include-adult-off': '包含成人页面: 关',
+    'include-adult-on': '包含成人页面: 开',
+    'adult-tag': '_成人',
+    // 自定义搜索
+    'custom-search-submit': '获取随机页面',
+    'custom-search-kind-label': '内容类型',
+    'custom-search-kind-any': '任何',
+    'custom-search-kind-scp': 'SCP',
+    'custom-search-kind-tale': '故事',
+    'custom-search-kind-goi': 'GoI',
+    'custom-search-kind-art': '艺术',
+    'custom-search-tags-label': '标签',
+    'custom-search-author-label': '作者',
+    'custom-search-tags-placeholder': 'euclid, 恐怖， 反模因',
+    'custom-search-author-placeholder': '输入作者这里.',
+    'custom-search-include-adult': '包含成人页面',
+    'loading-custom-search': '正在下载随机页面...',
+    'loaded-custom-search': '下载页面完成.',
+    'error-custom-search-empty': '输入至少一个过滤器。',
+    // 随机页面标题上方的标签
+    'scp-label': 'SCP文章',
+    'tale-label': '故事',
+    'goi-label': 'GoI文章',
+    'art-label': '艺术作品',
+    'random-tag-label': '带有页面标签',
+    // 随机页面详情
+    'tags': '标签',
+    'no-tags': '没有标签',
+    'author': '作者',
+    'rating': '评分',
+    // 下载状态和错误
+    'ready': '准备.',
+    'loading-scp': '正在下载随机SCP...',
+    'loading-tale': '正在下载随机故事...',
+    'loading-goi': '正在下载随机GoI文章...',
+    'loading-art': '正在下载随机艺术...',
+    'loading-tag': '正在下载随机已标签的页面 "%%tag%%"...',
+    'loaded-scp': '随机SCP加载成功。',
+    'loaded-tale': '随机故事加载成功。',
+    'loaded-goi': '随机GoI文章加载成功。',
+    'loaded-art': '随机艺术加载成功。',
+    'loaded-tag': '加载随机页面标签。 "%%tag%%".',
+    'error-no-page': '未返回页面。',
+    'error-unknown-kind': ' 未知随机化器类型。',
+    'error-rate-limit': '评分上限到了。 请刷新 %%seconds%% 秒钟。',
+    // 分部URL
+    'wiki-url': 'http://scp-wiki-cn.wikidot.com',
+  }
 };
 
-const disabledArt = ["fr", "pl"];
+const disabledArt = ["fr", "pl", "cn"];
 
 // Rate Limit
 function checkRateLimit() {
@@ -354,7 +420,7 @@ function getLang() {
   const lang = params.get("lang");
   
   if (!lang || !TRANSLATIONS[lang]) {
-    statusEl.textContent = "Error: Missing or invalid language. Please add ?lang=(en, fr, vn, or pl) to the end of the URL.";
+    statusEl.textContent = "Error: Missing or invalid language. Please add ?lang=(en, fr, vn, cn, or pl) to the end of the URL.";
     throw new Error("Invalid language");
   }
 
