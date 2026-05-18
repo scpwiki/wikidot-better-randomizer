@@ -55,10 +55,10 @@ const TAG_MAP = {
   },
   // Vietnamese
   vn: {
-    scp: "scp",
-    tale: "truyện",
-    goi: "tài-liệu-goi",
-    art: "hội-họa",
+    scp: "scp-vn",
+    tale: "truyện-vn",
+    goi: "tài-liệu-goi-vn",
+    art: "hội-họa-vn",
   },
   // French
   fr: {
@@ -82,6 +82,16 @@ const TAG_MAP = {
     art: "艺术作品",
   }
 };
+
+const TRANSLATED_TAG_MAP = {
+  vn: {
+    scp: "scp",
+    tale: "truyện",
+    goi: "tài-liệu-goi",
+    art: "hội-họa",
+  },
+};
+
 
 // Tags Excluded for Random SCP
 const MAINLIST_SCP_EXCLUDED_TAGS = {
@@ -183,6 +193,9 @@ var TRANSLATIONS = {
     'loading-custom-search': 'Đang tải Bài viết ngẫu nhiên...',
     'loaded-custom-search': 'Đã tải xong Bài viết ngẫu nhiên.',
     'error-custom-search-empty': 'Hãy nhập ít nhất một bộ lọc.',
+    'custom-search-include-translations': 'Dịch giả',
+    'include-translations-on': 'Bản dịch: ✓',
+    'include-translations-off': 'Bản dịch: X',
     // Labels above Random Page's Title
     'scp-label': 'Tài liệu SCP',
     'tale-label': 'Ngoại truyện',
@@ -450,7 +463,7 @@ function updateAdultToggleLabel(language) {
 }
 
 function getAvailableContentTypeTags(language) {
-  const tagMap = TAG_MAP[language] ?? TAG_MAP.en;
+  const tagMap = getTagMapForLanguage(language);
 
   const tags = [
     tagMap.scp,
@@ -474,16 +487,17 @@ let includeTranslations = false;
 function updateTranslationToggleLabel(language) {
   if (!translationToggleBtn) return;
 
-  translationToggleBtn.textContent = includeTranslations
-    ? "Uwzględnij tłumaczenia: ✓"
-    : "Uwzględnij tłumaczenia: X";
+  translationToggleBtn.textContent = getMessage(
+    language,
+    includeTranslations ? 'include-translations-on' : 'include-translations-off'
+  );
 
   translationToggleBtn.setAttribute("aria-pressed", String(includeTranslations));
   translationToggleBtn.classList.toggle("is-active", includeTranslations);
 }
 
 function updateCustomSearchTranslationToggle(language) {
-  const show = language === "pl";
+  const show = language === "pl" || language === "vn";
 
   if (customSearchIncludeTranslationsBtn) {
     customSearchIncludeTranslationsBtn.hidden = !show;
@@ -552,7 +566,7 @@ function initializeMessages(language) {
     randomArtBtn.disabled = false;
   }
 
-  if (language === "pl") {
+  if (language === "pl" || language === "vn") {
     translationToggleBtn?.classList.remove("hidden");
   } else {
     translationToggleBtn?.classList.add("hidden");
@@ -758,13 +772,31 @@ function buildCustomRandomQuery(kind, tagsInput, authorInput, includeAdult, lang
 }
 
 function getQueryForKind(kind, language) {
-  const tag = TAG_MAP[language]?.[kind] || TAG_MAP.en[kind];
+  const tag = getTagForKind(kind, language);
   return buildRandomQuery(tag, language);
+}
+
+function shouldUseTranslatedTags(language) {
+  return language === "pl"
+    ? includeTranslations
+    : language === "vn"
+    ? includeTranslations
+    : false;
+}
+
+function getTagMapForLanguage(language) {
+  if (shouldUseTranslatedTags(language) && TRANSLATED_TAG_MAP[language]) {
+    return TRANSLATED_TAG_MAP[language];
+  }
+
+  return TAG_MAP[language] ?? TAG_MAP.en;
 }
 
 function getTagForKind(kind, language) {
   if (!kind || kind === "any") return null;
-  return TAG_MAP[language]?.[kind] || TAG_MAP.en[kind] || null;
+
+  const tagMap = getTagMapForLanguage(language);
+  return tagMap[kind] ?? TAG_MAP.en[kind] ?? null;
 }
 
 function getKindForTag(tag, language) {
@@ -1180,6 +1212,7 @@ adultToggleBtn?.addEventListener("click", () => {
 translationToggleBtn?.addEventListener("click", () => {
   includeTranslations = !includeTranslations;
   updateTranslationToggleLabel(language);
+  initializeMessages(language);
 });
 
 menuToggleBtn?.addEventListener("click", () => {
@@ -1206,7 +1239,11 @@ customSearchIncludeAdultBtn?.addEventListener("click", () => {
 
 customSearchIncludeTranslationsBtn?.addEventListener("click", () => {
   customSearchIncludeTranslations = !customSearchIncludeTranslations;
+  includeTranslations = customSearchIncludeTranslations;
+
+  updateTranslationToggleLabel(language);
   updateCustomSearchTranslationToggle(language);
+  initializeMessages(language);
 });
 
 customSearchSubmitBtn?.addEventListener("click", () => {
