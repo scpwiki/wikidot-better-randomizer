@@ -654,6 +654,23 @@ function normalizeTags(tags) {
   return Array.isArray(tags) ? tags : [];
 }
 
+// Converts Crom URL from http:// to https://
+function normalizePageUrl(url) {
+  if (!url || typeof url !== "string") {
+    return "#";
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol === "http:") {
+      parsedUrl.protocol = "https:";
+    }
+    return parsedUrl.toString();
+  } catch {
+    return url;
+  }
+}
+
 // Removes Hidden and Crom Tags
 function filterDisplayTags(tags) {
   return normalizeTags(tags).filter(tag =>
@@ -745,7 +762,7 @@ function mapCromPageToRecord(page) {
   const source = page?.wikidotInfo?.source ?? "";
   
   return {
-    url: page?.url ?? "#",
+    url: normalizePageUrl(page?.url),
     title: page?.wikidotInfo?.title ?? "Untitled",
     alternateTitle: Array.isArray(page?.alternateTitles) && page.alternateTitles.length
       ? page.alternateTitles[0]?.title ?? ""
@@ -991,7 +1008,7 @@ async function fetchAndMaybeRedirect(kind, language, shouldRedirect = false) {
     }
 
     if (shouldRedirect) {
-      window.location.replace(page.url);
+      window.location.replace(normalizePageUrl(page.url));
       return;
     }
 
