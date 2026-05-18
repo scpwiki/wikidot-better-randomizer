@@ -76,6 +76,15 @@ const TAG_MAP = {
   }
 };
 
+// Tags Excluded for Random SCP
+const MAINLIST_SCP_EXCLUDED_TAGS = {
+  en: ["joke", "explained", "archived", "decommissioned", "international"],
+};
+
+function getMainlistScpExcludedTags(language) {
+  return MAINLIST_SCP_EXCLUDED_TAGS[language] ?? [];
+}
+
 var TRANSLATIONS = {
   // English
   'en': {
@@ -374,6 +383,22 @@ function updateAdultToggleLabel(language) {
   adultToggleBtn.classList.toggle("is-active", includeAdultPages);
 }
 
+function getAvailableContentTypeTags(language) {
+  const tagMap = TAG_MAP[language] ?? TAG_MAP.en;
+
+  const tags = [
+    tagMap.scp,
+    tagMap.tale,
+    tagMap.goi,
+  ];
+
+  if (!disabledArt.includes(language) && tagMap.art) {
+    tags.push(tagMap.art);
+  }
+
+  return [...new Set(tags.filter(Boolean))];
+}
+
 let customSearchIncludeAdultPages = false;
 
 let customSearchIncludeTranslations = false;
@@ -426,6 +451,10 @@ function updateCustomSearchAdultToggle(language) {
     customSearchIncludeAdultLabel.textContent =
       getMessage(language, 'custom-search-include-adult');
   }
+}
+
+function pickRandomItem(items) {
+  return items[Math.floor(Math.random() * items.length)];
 }
 
 // Startup Layout
@@ -486,7 +515,7 @@ function initializeMessages(language) {
 
   if (customSearchKindSelect) {
     customSearchKindSelect.innerHTML = `
-      <option value="">${getMessage(language, 'custom-search-kind-any')}</option>
+      <option value="any">${getMessage(language, 'custom-search-kind-any')}</option>
       <option value="scp">${getMessage(language, 'custom-search-kind-scp')}</option>
       <option value="tale">${getMessage(language, 'custom-search-kind-tale')}</option>
       <option value="goi">${getMessage(language, 'custom-search-kind-goi')}</option>
@@ -521,6 +550,11 @@ function buildRandomQuery(tag, language) {
 
   if (language === "pl" && !includeTranslations) {
     noneTags.push("tłumaczenie");
+  }
+
+  const scpTag = getTagForKind("scp", language);
+  if (tag === scpTag) {
+    noneTags.push(...getMainlistScpExcludedTags(language));
   }
 
   const noneTagsFilter = noneTags.length
@@ -570,11 +604,25 @@ function buildCustomRandomQuery(kind, tagsInput, authorInput, includeAdult, lang
     .filter(Boolean);
 
   const author = authorInput.trim();
-  const kindTag = getTagForKind(kind, language);
 
-  if (!tags.length && !author && !kindTag) {
-    throw new Error(getMessage(language, 'error-custom-search-empty'));
+  let kindTag = getTagForKind(kind, language);
+
+  if (kind === "any") {
+    const availableContentTypeTags = getAvailableContentTypeTags(language);
+    kindTag = pickRandomItem(availableContentTypeTags);
+
+    console.log({
+      kind,
+      language,
+      availableTypes: kind === "any" ? getAvailableContentTypeTags(language) : null,
+      pickedKindTag: kindTag
+      });
+
   }
+
+  const filterParts = [
+    `anyBaseUrl: ["${wikiUrl}"]`
+  ];
 
   const allTags = [...tags];
 
@@ -582,16 +630,14 @@ function buildCustomRandomQuery(kind, tagsInput, authorInput, includeAdult, lang
     allTags.unshift(kindTag);
   }
 
-  const filterParts = [
-    `anyBaseUrl: ["${wikiUrl}"]`
-  ];
+  if (!tags.length && !author && !kindTag) {
+    throw new Error(getMessage(language, 'error-custom-search-empty'));
+  }
 
-  // Tags
   if (allTags.length) {
     filterParts.push(`allTags: ${JSON.stringify(allTags)}`);
   }
 
-  // Author
   if (author) {
     filterParts.push(`allAttributedUsers: ${JSON.stringify([author])}`);
   }
@@ -606,38 +652,43 @@ function buildCustomRandomQuery(kind, tagsInput, authorInput, includeAdult, lang
     noneTags.push("tłumaczenie");
   }
 
-  if (noneTags.length) {
-    filterParts.push(`noneTags: ${JSON.stringify(noneTags)}`);
+  const scpTag = getTagForKind("scp", language);
+  const mainlistExcludedTags = getMainlistScpExcludedTags(language);
+  const isExplicitScpContentType = kind === "scp" || kindTag === scpTag;
+
+  if (isExplicitScpContentType && mainlistExcludedTags.length) {
+    const userRequestedTags = new Set(tags);
+
+    for (const excludedTag of mainlistExcludedTags) {
+      if (!userRequestedTags.has(excludedTag)) {
+        noneTags.push(excludedTag);
+      }
+    }
   }
 
-  return `
-    query RandomPage {
-      randomPage(
-        filter: {
-          ${filterParts.join('\n          ')}
-        }
-      ) {
-        page {
-          url
-          alternateTitles {
-            title
+  if (noneTags.length) {
+    filterParts.push(`noneTags: ${JSON.stringify([...new Set(noneTags)])}`);
+  }
+
+  return {
+    query: `
+      query RandomPage {
+        randomPage(
+          filter: {
+            ${filterParts.join('\n          ')}
           }
-          wikidotInfo {
-            title
-            rating
-            tags
-            thumbnailUrl
-            source
-          }
-          attributions {
-            user {
-              name
-            }
+        ) {
+          page {
+            url
+            alternateTitles { title }
+            wikidotInfo { title rating tags thumbnailUrl source }
+            attributions { user { name } }
           }
         }
       }
-    }
-  `;
+    `,
+    selectedKindTag: kindTag,
+  };
 }
 
 function getQueryForKind(kind, language) {
@@ -646,8 +697,20 @@ function getQueryForKind(kind, language) {
 }
 
 function getTagForKind(kind, language) {
-  if (!kind) return null;
+  if (!kind || kind === "any") return null;
   return TAG_MAP[language]?.[kind] || TAG_MAP.en[kind] || null;
+}
+
+function getKindForTag(tag, language) {
+  const tagMap = TAG_MAP[language] ?? TAG_MAP.en;
+
+  for (const [kind, mappedTag] of Object.entries(tagMap)) {
+    if (mappedTag === tag) {
+      return kind;
+    }
+  }
+
+  return null;
 }
 
 function normalizeTags(tags) {
@@ -792,8 +855,10 @@ function renderResult(record, kind, language, activeTag = null) {
   const previewText = record.previewText || "";
 
   // Label Above Title
-  if (kind === "tag" && activeTag) {
-    typeEl.textContent = `${getMessage(language, 'random-tag-label')}: ${activeTag}`;
+  if (kind === "tag") {
+    typeEl.textContent = activeTag
+      ? `${getMessage(language, 'random-tag-label')}: ${activeTag}`
+      : getMessage(language, 'custom-search-kind-any');
   } else {
     typeEl.textContent =
       kind === "scp"
@@ -937,7 +1002,7 @@ async function fetchAndRenderCustomRandom(kind, tagsInput, authorInput, includeA
   try {
     statusEl.textContent = getMessage(language, 'loading-custom-search');
 
-    const query = buildCustomRandomQuery(
+    const customQuery = buildCustomRandomQuery(
       kind,
       tagsInput,
       authorInput,
@@ -945,39 +1010,22 @@ async function fetchAndRenderCustomRandom(kind, tagsInput, authorInput, includeA
       language
     );
 
-    const data = await cromApiRequest(query);
+    const data = await cromApiRequest(customQuery.query);
     const page = data?.randomPage?.page;
 
     if (!page) {
       throw new Error(getMessage(language, 'error-no-page'));
     }
 
-    const activeLabelParts = [];
-
-    const kindTag = getTagForKind(kind, language);
-    const cleanedTags = tagsInput
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(Boolean);
-    const cleanedAuthor = authorInput.trim();
-
-    if (kindTag) {
-      activeLabelParts.push(kindTag);
-    }
-
-    if (cleanedTags.length) {
-      activeLabelParts.push(cleanedTags.join(", "));
-    }
-
-    if (cleanedAuthor) {
-      activeLabelParts.push(cleanedAuthor);
-    }
+    const selectedKind =
+      kind === "any"
+      ? getKindForTag(customQuery.selectedKindTag, language)
+      : kind;
 
     renderResult(
       mapCromPageToRecord(page),
-      "tag",
-      language,
-      activeLabelParts.join(" | ")
+      selectedKind || "tag",
+      language
     );
 
     statusEl.textContent = getMessage(language, 'loaded-custom-search');
