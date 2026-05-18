@@ -348,7 +348,7 @@ var TRANSLATIONS = {
   },
 // Chinese
   'cn': {
-    'title': '更好SCP随机化',
+    'title': '更好的SCP随机化',
     'credit': '',
     'instructions': '选择随机SCP, 故事，或者 GoI格式.',
     // 按钮
