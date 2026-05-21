@@ -6,43 +6,43 @@ body {
 }
 
 .container {
-  max-width: 800px;
+  max-width: 50rem;
   margin: 0 auto;
-  padding: 40px 20px 80px;
+  padding: 2.5rem 1.25rem 5rem;
 }
 
 .credit {
   position: absolute;
-  top: 12px;
-  left: 16px;
-  font-size: 12px;
+  top: 0.75rem;
+  left: 1rem;
+  font-size: 0.75rem;
   color: #999;
   opacity: 0.7;
-  letter-spacing: 0.5px;
+  letter-spacing: .0313rem;
 }
 
 h1 {
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .subtitle {
   color: #595959;
   margin-top: 0;
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
 }
 
 .button-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
 }
 
 .toggle-row {
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
   display: flex;
   justify-content: flex-start;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 button {
@@ -50,9 +50,9 @@ button {
   background-image: linear-gradient(to bottom, #966, #633, #300); /* Taken from the Wiki Search Button */
   color: #fff;
   border: 1px solid #444;
-  border-radius: 10px;
-  padding: 12px 18px;
-  font-size: 16px;
+  border-radius: 0.625rem;
+  padding: 0.75rem 1.125rem;
+  font-size: 1rem;
   cursor: pointer;
 }
 
@@ -62,40 +62,40 @@ button:hover {
 
 .status {
   color: #595959;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
 .card { /* Results. Styled Similarly to Wiki Sidebar */
   background: #e3e3e3; /* "Notice Box" Gray, to have Result Stick Out From the Page */
-  border: 1px solid #600;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 2px 6px rgba(102, 0, 0, .5);
+  border: 0.06rem solid #600;
+  border-radius: 0.635rem;
+  padding: 0.635rem;
+  box-shadow: 0 0.125rem .375rem rgba(102, 0, 0, .5);
 }
 
 .menu-btn {
   position: fixed;
-  top: 12px;
-  right: 16px;
+  top: .75rem;
+  right: 1rem;
   z-index: 1000;
-  font-size: 24px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  font-size: 1.5rem;
+  padding: .5rem .75rem;
+  border-radius: .5rem;
 }
 
 .menu-panel {
   position: fixed;
   top: 0;
   right: 0;
-  height: 33%;
+  height: 17em;
   width: 35%;
   background: #f4f4f4;
-  border-left: 2px solid #633;
-  border-bottom: 2px solid #633;
-  padding: 10px;
+  border-left: 0.125rem solid #633;
+  border-bottom: 0.125rem solid #633;
+  padding: 0.625rem;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
   z-index: 999;
   overflow-y: auto;
 }
@@ -106,8 +106,8 @@ button:hover {
 
 .menu-close-btn {
   align-self: flex-end;
-  font-size: 20px;
-  padding: 4px 8px;
+  font-size: 1.25rem;
+  padding: 0.25rem 0.5rem;
   background: #fff;
   background-image: none;
   color: #633;
@@ -122,16 +122,16 @@ button:hover {
 .type {
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: #600;
-  margin: 0 0 10px 0;
+  margin: 0 0 0.625rem 0;
   font-weight: bold;
 }
 
 h2 {
   color: #b01;
   margin-top: 0;
-  margin-bottom: 18px;
+  margin-bottom: 0.67rem;
 }
 
 h2 a {
@@ -151,16 +151,16 @@ h2 a:hover {
   color: #595959;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
 }
 
 .tag {
   background: #633;
   border: 1px solid #444;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 14px;
+  border-radius: 62.5rem;
+  padding: 6px 0.64rem;
+  font-size: 0.875rem;
   color: #ddd;
 
   cursor: pointer;
@@ -183,7 +183,7 @@ h2 a:hover {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .result-main {
@@ -192,7 +192,7 @@ h2 a:hover {
 }
 
 .alt-title {
-  margin-top: -15px;
+  margin-top: -10px;
   margin-bottom: 15px;
   font-size: 16px;
   color: #a4241e;
@@ -222,12 +222,12 @@ h2 a:hover {
 #custom-search-author-input {
   box-sizing: border-box;
   width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
-  font-size: 16px;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 1rem;
   line-height: 1.2;
   border: 1px solid #999;
-  border-radius: 8px;
+  border-radius: .5rem;
   color: #333;
   background: #fff;
 }
@@ -237,27 +237,27 @@ h2 a:hover {
   -webkit-appearance: none;
   -moz-appearance: none;
   background-image: none;
-  height: 44px;
+  height: 2.75rem;
   line-height: normal;
 }
 
 .custom-checkbox-row {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .custom-checkbox {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
+  width: 2rem;
+  height: 1.75rem;
+  min-width: 1.75rem;
   padding: 0;
   border-radius: 6px;
   border: 1px solid #999;
   background: #fff;
   background-image: none;
   color: #333;
-  font-size: 18px;
+  font-size: 1.125rem;
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -279,4 +279,223 @@ h2 a:hover {
 
 .toggle-btn.is-active {
   background: #633;
+}
+
+.licensebox {
+  margin-top: 1rem;
+}
+
+.licensebox-details {
+  border: 1px dashed #999;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: #333;
+}
+
+a:-webkit-any-link {
+    color: #b01;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.licensebox-summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #7a7a7a;
+}
+
+.licensebox-entry {
+  margin-top: 0.75rem;
+  overflow-wrap: break-word;
+}
+
+.licensebox-entry p {
+  margin: 0.25rem 0;
+}
+
+.wikidot-user {
+  font-weight: 600;
+}
+
+.licensebox-entry + .licensebox-entry {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 0.08333333333333333em dashed #7a7a7a;
+}
+
+::marker {
+    content: "‡";
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.container {
+  width: min(100%, 50rem);
+}
+
+button,
+select,
+input {
+  max-width: 100%;
+}
+
+.button-row,
+.toggle-row {
+  align-items: stretch;
+}
+
+.button-row button,
+.toggle-row button {
+  min-height: 2.75rem;
+}
+
+.menu-panel {
+  width: min(26rem, 92vw);
+  max-width: 100%;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .container {
+    padding: 4.25rem 1rem 3rem;
+  }
+
+  .credit {
+    position: static;
+    display: block;
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 8vw, 2.25rem);
+    line-height: 1.1;
+    margin-top: 0;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .button-row,
+  .toggle-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.625rem;
+  }
+
+  button {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+
+  .menu-btn {
+    width: auto;
+    right: 0.75rem;
+    top: 0.75rem;
+  }
+
+  .menu-panel {
+    left: 0;
+    right: 0;
+    width: 100vw;
+    height: auto;
+    max-height: 100dvh;
+    border-left: 0;
+    border-bottom: 0.125rem solid #633;
+    padding: 1rem;
+  }
+
+  .menu-close-btn {
+    width: auto;
+  }
+
+  .custom-checkbox-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 0.75rem;
+    align-items: center;
+  }
+
+  .custom-checkbox {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .result-header {
+    flex-direction: column;
+  }
+
+  .thumbnail {
+    order: -1;
+    width: 100%;
+    max-width: 100%;
+    max-height: 16rem;
+    object-fit: cover;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .alt-title,
+  .preview,
+  .meta p,
+  .licensebox-entry {
+    overflow-wrap: anywhere;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.4rem;
+  }
+
+  .tag {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+    flex: 0 1 auto;
+    padding: 0.35rem 0.55rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Tablets */
+@media (min-width: 701px) and (max-width: 950px) {
+  .button-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .button-row button {
+    width: 100%;
+  }
+
+  .toggle-row {
+    flex-wrap: wrap;
+  }
+
+  .thumbnail {
+    max-width: 35%;
+  }
 }

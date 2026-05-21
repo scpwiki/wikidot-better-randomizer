@@ -23,12 +23,12 @@ const customSearchSubmitBtn = document.getElementById("custom-search-submit-btn"
 const cardEl = document.getElementById("result-card");
 const typeEl = document.getElementById("result-type");
 const titleEl = document.getElementById("result-title");
-const scpNumberEl = document.getElementById("result-scp-number");
 const ratingEl = document.getElementById("result-rating");
 const tagsEl = document.getElementById("result-tags");
 const altTitleEl = document.getElementById("result-alt-title");
 const previewEl = document.getElementById("result-preview");
 const thumbnailEl = document.getElementById("result-thumbnail");
+const licenseboxEl = document.getElementById("result-licensebox");
 
 // Top Button Elements
 const randomScpBtn = document.getElementById("random-scp-btn");
@@ -83,6 +83,7 @@ const TAG_MAP = {
   }
 };
 
+// Translated Pages Tags for -VN
 const TRANSLATED_TAG_MAP = {
   vn: {
     scp: "scp",
@@ -98,6 +99,7 @@ const MAINLIST_SCP_EXCLUDED_TAGS = {
   en: ["joke", "explained", "archived", "decommissioned", "international"],
 };
 
+// Tags Excluded from General Random SCP unless Specified
 function getMainlistScpExcludedTags(language) {
   return MAINLIST_SCP_EXCLUDED_TAGS[language] ?? [];
 }
@@ -137,7 +139,7 @@ var TRANSLATIONS = {
     // Labels above Random Page's Title
     'scp-label': 'SCP Article',
     'tale-label': 'Tale',
-    'goi-label': 'GoI Article',
+    'goi-label': 'GoI Format',
     'art-label': 'Artwork',
     'random-tag-label': 'Page Tagged With',
     // Random Page Info
@@ -407,6 +409,7 @@ var TRANSLATIONS = {
   }
 };
 
+// Branches without an "artwork" Equivalent Tag
 const disabledArt = ["fr", "pl", "cn"];
 
 // Rate Limit
@@ -483,6 +486,22 @@ let customSearchIncludeAdultPages = false;
 let customSearchIncludeTranslations = false;
 
 let includeTranslations = false;
+
+// Crom Data Citation
+function buildCromDataLicenseEntry(record) {
+  const title = record?.title || "Untitled";
+  const authors = Array.isArray(record?.authors) && record.authors.length
+    ? record.authors.join(", ")
+    : "Unknown";
+  const url = record?.url || "";
+
+  return [
+    `> **Filename:** Crom Data for "${title}"`,
+    `> **Author:** ${authors}`,
+    `> **License:** CC-BY-SA 3.0`,
+    `> **Source:** ${url}`,
+  ];
+}
 
 function updateTranslationToggleLabel(language) {
   if (!translationToggleBtn) return;
@@ -690,14 +709,6 @@ function buildCustomRandomQuery(kind, tagsInput, authorInput, includeAdult, lang
   if (kind === "any") {
     const availableContentTypeTags = getAvailableContentTypeTags(language);
     kindTag = pickRandomItem(availableContentTypeTags);
-
-    console.log({
-      kind,
-      language,
-      availableTypes: kind === "any" ? getAvailableContentTypeTags(language) : null,
-      pickedKindTag: kindTag
-      });
-
   }
 
   const filterParts = [
@@ -918,6 +929,293 @@ function extractPreviewText(pageSource) {
   return previewText;
 }
 
+// Extracts Licensebox Text from Page Source
+function extractLicensebox(source) {
+  if (!source || typeof source !== "string") return null;
+
+  // Standard Licensebox
+  const normalMatch = source.match(
+    /\[\[include\s+(?::[a-z0-9-]+:)?component:license-box(?:[^\]]*)\]\]([\s\S]*?)\[\[include\s+(?::[a-z0-9-]+:)?component:license-box-end\s*\]\]/i
+  );
+
+  if (normalMatch) {
+    return cleanLicensebox(normalMatch[1]);
+  }
+
+  // Licensebox without [[component:license-box-end]]
+  const startMatch = source.match(
+    /\[\[include\s+(?::[a-z0-9-]+:)?component:license-box(?:[^\]]*)\]\]([\s\S]*)/i
+  );
+
+  if (!startMatch) return null;
+
+  let body = startMatch[1];
+
+  // Remove [[/div]] or [[/collapsible]]
+  body = body
+    .replace(/\[\[\/div\]\][\s\S]*$/i, "")
+    .replace(/\[\[\/collapsible\]\][\s\S]*$/i, "");
+
+  return cleanLicensebox(body);
+}
+
+function cleanLicensebox(text) {
+  return text
+    // Remove Licensebox Comments [!-- Example --]
+    .replace(/\[!--[\s\S]*?--\]/g, "")
+
+    // Remove Alignment Wrappers
+    .replace(/^\s*\[\[(?:=|\/=|<|\/<|>|\/>)\]\]\s*$/gm, "")
+
+    .trim();
+}
+
+// Trims ")" only if Similar to Nearby Punctuation, not part of URL (E.g. File:Cyclone_Oli_(2010).png)
+function splitTrailingUrlPunctuation(rawHref) {
+  let href = rawHref;
+  let trailing = "";
+
+  while (href.length > 0) {
+    const last = href[href.length - 1];
+
+    if (/[.;:!?]/.test(last)) {
+      trailing = last + trailing;
+      href = href.slice(0, -1);
+      continue;
+    }
+
+    if (last === "," && !/%2c$/i.test(href)) {
+      trailing = last + trailing;
+      href = href.slice(0, -1);
+      continue;
+    }
+
+    if (last === ")") {
+      const openCount = (href.match(/\(/g) || []).length;
+      const closeCount = (href.match(/\)/g) || []).length;
+
+      if (closeCount > openCount) {
+        trailing = last + trailing;
+        href = href.slice(0, -1);
+        continue;
+      }
+    }
+
+    break;
+  }
+
+  return { href, trailing };
+}
+
+// Parse Wikitext to HTML
+function wikidotToHtml(text) {
+  const links = [];
+
+  function stashLink(href, label) {
+    const index = links.length;
+    links.push({ href, label });
+    return `@@LINK_${index}@@`;
+  }
+
+  let output = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+
+    // Remove Quote Marker
+    .replace(/^&gt;\s?/gm, "")
+
+    // [[[https://example.com/path|Label]]]
+    .replace(
+      /\[\[\[(https?:\/\/[^\]|]+)\|([^\]]+)\]\]\]/g,
+      (_, href, label) => stashLink(href, label)
+    )
+
+    // [[[https://example.com/path]]]
+    .replace(
+      /\[\[\[(https?:\/\/[^\]]+)\]\]\]/g,
+      (_, href) => stashLink(href, href)
+    )
+
+    // [https://example.com Label]
+    .replace(
+      /\[(https?:\/\/[^\s\]]+)\s+([^\]]+)\]/g,
+      (_, href, label) => stashLink(href, label)
+    )
+
+    // [https://example.com]
+    .replace(
+      /\[(https?:\/\/[^\s\]]+)\]/g,
+      (_, href) => stashLink(href, href)
+    )
+
+    // (&lt;https://example.com&gt)
+    .replace(
+      /&lt;(https?:\/\/[^&]+)&gt;/g,
+      (_, href) => stashLink(href, href)
+    )
+
+    // Bare URL
+    .replace(
+      /(^|[\s(])((?:https?:\/\/)[^\s<]+)/g,
+      (_, prefix, rawHref) => {
+        const { href, trailing } = splitTrailingUrlPunctuation(rawHref);
+        return `${prefix}${stashLink(href, href)}${trailing}`;
+      }
+    )
+
+    // [[*user username]]
+    .replace(
+      /\[\[\*user\s+([^\]]+)\]\]/gi,
+      '<span class="wikidot-user">$1</span>'
+    )
+
+    // **bold**
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+  for (let i = 0; i < links.length; i += 1) {
+    const { href, label } = links[i];
+
+    output = output.replace(
+      `@@LINK_${i}@@`,
+      `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`
+    );
+  }
+
+  return output;
+}
+
+function isLicenseboxField(line, fieldName) {
+  const escapedField = fieldName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  return new RegExp(
+    `^>\\s*\\*\\*${escapedField}:\\*\\*`,
+    "i"
+  ).test(line);
+}
+
+// Detects Separator between Entries
+function isEntryHeading(line) {
+  return (
+    /^\*\*.+?\*\*(?:\s*[-–—].*)?$/.test(line) &&
+    !/^\*\*[^*]+:\*\*/.test(line) &&
+    !/^>\s*\*\*[^*]+:\*\*/.test(line)
+  );
+}
+
+// Separate Licensebox Entries
+function splitLicenseboxEntries(licensebox) {
+  const lines = licensebox
+    .split(/\r?\n/)
+    .map(line => line.trim());
+
+  const entries = [];
+  let current = [];
+  let currentHasSourceLink = false;
+
+  function pushCurrent() {
+    const cleaned = current.filter(Boolean);
+
+    if (cleaned.length) {
+      entries.push(cleaned);
+    }
+
+    current = [];
+    currentHasSourceLink = false;
+  }
+
+  for (const line of lines) {
+    if (!line) {
+      current.push(line);
+      continue;
+    }
+
+    if (/^(=+|-{4,})$/.test(line)) {
+      pushCurrent();
+      continue;
+    }
+
+    const startsNewHeadingEntry = isEntryHeading(line) && current.filter(Boolean).length > 0;
+
+    const startsRepeatedFilenameEntry =
+      isLicenseboxField(line, "Filename") &&
+      current.filter(Boolean).length > 0 &&
+      currentHasSourceLink;
+
+    if (startsNewHeadingEntry || startsRepeatedFilenameEntry) {
+      pushCurrent();
+    }
+
+    current.push(line);
+
+    if (isLicenseboxField(line, "Source Link") || isLicenseboxField(line, "Source")) {
+      currentHasSourceLink = true;
+    }
+  }
+
+  pushCurrent();
+
+  return entries;
+}
+
+// Display Licensebox
+function renderLicensebox(record) {
+  if (!licenseboxEl) return;
+
+  licenseboxEl.innerHTML = "";
+  licenseboxEl.classList.add("hidden");
+
+  const source = record?.source || "";
+  const licensebox = extractLicensebox(source);
+
+  const entries = licensebox
+    ? splitLicenseboxEntries(licensebox)
+    : [];
+
+  const firstEntry = entries[0] || [];
+  const cromDataEntry = buildCromDataLicenseEntry(record);
+
+  licenseboxEl.classList.remove("hidden");
+
+  // Closed Collapsible by Default
+  const details = document.createElement("details");
+  details.className = "licensebox-details";
+
+  // Create Licensebox Header
+  const summary = document.createElement("summary");
+  summary.className = "licensebox-summary";
+  summary.textContent = " Licensing / Citation";
+
+  details.appendChild(summary);
+
+  // Determines whether Article contains Thumbnail Image, Adds Image License
+  if (firstEntry.length) {
+    const imageSection = document.createElement("section");
+    imageSection.className = "licensebox-entry";
+
+    for (const line of firstEntry) {
+      const row = document.createElement("p");
+      row.innerHTML = wikidotToHtml(line);
+      imageSection.appendChild(row);
+    }
+
+    details.appendChild(imageSection);
+  }
+
+  // If Image is Present, add Crom Data Citation below Image
+  const cromSection = document.createElement("section");
+  cromSection.className = "licensebox-entry licensebox-entry-crom";
+
+  for (const line of cromDataEntry) {
+    const row = document.createElement("p");
+    row.innerHTML = wikidotToHtml(line);
+    cromSection.appendChild(row);
+  }
+
+  details.appendChild(cromSection);
+  licenseboxEl.appendChild(details);
+}
+
 // Stores Info from Crom Query
 function mapCromPageToRecord(page) {
   const source = page?.wikidotInfo?.source ?? "";
@@ -977,9 +1275,6 @@ function renderResult(record, kind, language, activeTag = null) {
   link.textContent = title;
   titleEl.appendChild(link);
 
-  scpNumberEl.textContent = "";
-  scpNumberEl.classList.add("hidden");
-
   // Author
   const authorText =
     Array.isArray(record.authors) && record.authors.length
@@ -1022,6 +1317,9 @@ function renderResult(record, kind, language, activeTag = null) {
   // Tags
   renderTags(tags, language);
   cardEl.classList.remove("hidden");
+
+  // Licensebox
+  renderLicensebox(record);
 }
 
 // Top Buttons Functionality
@@ -1215,6 +1513,7 @@ translationToggleBtn?.addEventListener("click", () => {
   initializeMessages(language);
 });
 
+// Custom Menu Triggers
 menuToggleBtn?.addEventListener("click", () => {
   if (!menuPanel || !menuToggleBtn) return;
   const isOpen = !menuPanel.classList.contains("hidden");
