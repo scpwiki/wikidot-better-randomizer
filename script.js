@@ -74,7 +74,7 @@ const TAG_MAP = {
     goi: "goi-format",
     art: "fanart",
   },
-  // Chinese
+  // Simplified Chinese
   cn: {
     scp: "scp",
     tale: "故事",
@@ -348,7 +348,7 @@ var TRANSLATIONS = {
     // Branch URL
     'wiki-url': 'http://scp-pl.wikidot.com',
   },
-// Chinese
+// Simplified Chinese
   'cn': {
     'title': '更好的SCP随机化',
     'credit': '',
