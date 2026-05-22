@@ -13,14 +13,6 @@ jobs:
     name: Deploy Web
     runs-on: ubuntu-latest
 
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -29,15 +21,6 @@ jobs:
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: src/
-
-      - name: Deploy (GitHub Pages)
-        uses: actions/deploy-pages@v4
-        id: deployment
 
       - name: Upload to S3
         run: |
