@@ -451,9 +451,7 @@ input {
     right: 0;
     width: 100vw;
     height: auto;
-    max-height: 100dvh;
-    border-left: 0;
-    border-bottom: 0.125rem solid #633;
+    max-height: 120dvh;
     padding: 1rem;
   }
 
