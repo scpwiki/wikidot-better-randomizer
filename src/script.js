@@ -432,7 +432,8 @@ function checkRateLimit() {
 
 // Setting language with ?lang=(en,fr,vn...)
 function getLang() {
-  const params = new URLSearchParams(window.location.search);
+  const hashString = window.location.hash.substring(1); 
+  const params = new URLSearchParams(hashString);
   const lang = params.get("lang");
 
   if (!lang || !TRANSLATIONS[lang]) {
