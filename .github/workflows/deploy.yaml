@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  BUCKET_PATH: host/better-randomizer
+
+jobs:
+  build-and-deploy:
+    name: Deploy Web
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: src/
+
+      - name: Deploy (GitHub Pages)
+        uses: actions/deploy-pages@v4
+        id: deployment
+
+      - name: Upload to S3
+        run: |
+          export sync_args=( "--delete" "--acl" "public-read" "src" "s3://${{ vars.AWS_S3_BUCKET }}/${{ env.BUCKET_PATH }}" )
+          # Manually set content-types for anything aws-cli can't guess correctly
+          aws s3 sync ${sync_args[@]} --exclude "*" --include "*.css" --content-type "text/css; charset=utf-8"
+          aws s3 sync ${sync_args[@]} --exclude "*.css"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL: 'https://${{ vars.DIGITALOCEAN_SPACES_REGION }}.digitaloceanspaces.com'
+
+      - name: Invalidate Spaces Cache
+        run: doctl compute cdn flush $DIGITALOCEAN_CDN_ID
+        env:
+          DIGITALOCEAN_CDN_ID: ${{ vars.DIGITALOCEAN_CDN_ID }}
