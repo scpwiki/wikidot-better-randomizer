@@ -429,12 +429,12 @@ function checkRateLimit() {
 
   return {allowed: true, waitMs: 0};
 }
-      
+
 // Setting language with ?lang=(en,fr,vn...)
 function getLang() {
   const params = new URLSearchParams(window.location.search);
   const lang = params.get("lang");
-  
+
   if (!lang || !TRANSLATIONS[lang]) {
     statusEl.textContent = "Error: Missing or invalid language. Please add ?lang=(en, fr, vn, cn, or pl) to the end of the URL.";
     throw new Error("Invalid language");
@@ -562,10 +562,10 @@ function initializeMessages(language) {
 
   document.getElementById('credit').textContent =
     getMessage(language, 'credit');
-  
+
   document.getElementById('page-title').textContent =
     getMessage(language, 'title');
-  
+
   document.getElementById('page-subtitle').textContent =
     getMessage(language, 'instructions');
 
@@ -576,7 +576,7 @@ function initializeMessages(language) {
   randomTaleBtn.textContent = getMessage(language, 'tale-btn');
   randomGoiBtn.textContent = getMessage(language, 'goi-btn');
 
-  if (disabledArt.includes(language.slice(0, 2))) { 
+  if (disabledArt.includes(language.slice(0, 2))) {
     randomArtBtn.classList.add("hidden");
     randomArtBtn.disabled = true;
   } else {
@@ -886,7 +886,7 @@ function renderTags(tags, language) {
     button.addEventListener("click", () => {
       fetchAndRenderRandomByTag(tag, language);
     });
-    
+
     tagsEl.appendChild(button);
   }
 }
@@ -1219,7 +1219,7 @@ function renderLicensebox(record) {
 // Stores Info from Crom Query
 function mapCromPageToRecord(page) {
   const source = page?.wikidotInfo?.source ?? "";
-  
+
   return {
     url: normalizePageUrl(page?.url),
     title: page?.wikidotInfo?.title ?? "Untitled",
@@ -1332,7 +1332,7 @@ async function fetchAndRenderRandom(kind, language) {
       .replace('%%seconds%%', waitSeconds);
     return;
   }
-  
+
   try {
     statusEl.textContent = getMessage(language, `loading-${kind}`);
 
@@ -1525,7 +1525,7 @@ menuToggleBtn?.addEventListener("click", () => {
 
 menuCloseBtn?.addEventListener("click", () => {
   if (!menuPanel || !menuToggleBtn) return;
-  
+
   menuPanel.classList.add("hidden");
   menuToggleBtn.classList.remove("hidden");
   menuToggleBtn.setAttribute("aria-expanded", "false");
