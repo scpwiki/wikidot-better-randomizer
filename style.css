@@ -442,6 +442,7 @@ input {
 
   .menu-btn {
     width: auto;
+    min-width: stretch;
     right: 0.75rem;
     top: 0.75rem;
   }
