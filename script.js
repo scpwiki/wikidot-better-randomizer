@@ -108,7 +108,7 @@ var TRANSLATIONS = {
   // English
   'en': {
     // Header
-    'title': 'Better SCP Randomizer',
+    'title': 'SCP Randomizer',
     'credit': '',
     'instructions': 'Pick a random SCP, Tale, or GoI-Formatted page.',
     // Buttons
